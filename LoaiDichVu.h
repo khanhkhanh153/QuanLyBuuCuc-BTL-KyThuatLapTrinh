@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <stdexcept>
+#include <functional> // <--- Bo sung thu vien nay de dung callback Lambda
 #include "Entity.h"
 #include "Repository.h"
 
@@ -91,6 +92,9 @@ public:
 class LoaiDichVuMenu {
 private:
     Repository<LoaiDichVu>& repo;
+    
+    // Khai bao mot con tro ham (callback) de kiem tra rang buoc voi Buu Pham
+    function<bool(string)> kiemTraRangBuocBuuPham;
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
@@ -101,7 +105,9 @@ private:
     }
 
 public:
-    LoaiDichVuMenu(Repository<LoaiDichVu>& r) : repo(r) {}
+    // Cap nhat Constructor de nhan them ham kiem tra (Mac dinh la nullptr neu khong truyen)
+    LoaiDichVuMenu(Repository<LoaiDichVu>& r, function<bool(string)> kiemTra = nullptr) 
+        : repo(r), kiemTraRangBuocBuuPham(kiemTra) {}
 
     void themMoi() {
         cout << "\n=== THEM MOI LOAI DICH VU ===\n";
@@ -183,7 +189,21 @@ public:
         LoaiDichVu* target = repo.findById(id);
         if (target == nullptr) { cout << "Khong tim thay ma loai dich vu nay!\n"; return; }
 
-        cout << "\nThon tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
+        cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
+        
+        // ========================================================
+        // KIEM TRA RANG BUOC KHOA NGOAI TRUOC KHI XOA
+        // ========================================================
+        if (kiemTraRangBuocBuuPham != nullptr) {
+            bool dangDuocSuDung = kiemTraRangBuocBuuPham(id);
+            if (dangDuocSuDung) {
+                cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
+                cout << "-> Loai dich vu nay hien dang co Buu Pham su dung.\n";
+                cout << "-> De dam bao toan ven du lieu, hay xoa/chuyen cac Buu Pham thuoc dich vu nay truoc.\n";
+                return; // Dung thao tac xoa
+            }
+        }
+
         cout << "Ban co chac chan muon xoa khong? (y/n): ";
         char confirm; cin >> confirm; cin.ignore(10000, '\n');
 
