@@ -10,22 +10,28 @@
 #include "PhieuGui.h"
 #include "BuuPham.h"
 #include "LoaiDichVu.h"
+#include "TuyenVanChuyen.h"
+#include "HoaDonCuoc.h"
 
 using namespace std;
 
 class Application {
 private:
     // 1. KHOI TAO TRUY TIEP BẰNG NGOAC NHON {} (C++11)
-    Repository<BuuCuc> repoBC{"data/buu_cuc.txt"};
-    Repository<PhieuGui> repoPG{"data/phieu_gui.txt"};
-    Repository<BuuPham> repoBP{"data/buu_pham.txt"};
-    Repository<LoaiDichVu> repoLDV{"data/loai_dich_vu.txt"};
+    Repository<BuuCuc> repoBC{ "data/buu_cuc.txt" };
+    Repository<PhieuGui> repoPG{ "data/phieu_gui.txt" };
+    Repository<BuuPham> repoBP{ "data/buu_pham.txt" };
+    Repository<LoaiDichVu> repoLDV{ "data/loai_dich_vu.txt" };
+    Repository <TuyenVanChuyen> repoTVC{ "data/tuyen_van_chuyen.txt" };
+    Repository <HoaDonCuoc> repoHD{ "data/hoa_don_cuoc_phi.txt" };
 
     // 2. CAC CON TRO QUAN LY MENU
     unique_ptr<BuuCucMenu> menuBC;
     unique_ptr<PhieuGuiMenu> menuPG;
     unique_ptr<BuuPhamMenu> menuBP;
     unique_ptr<LoaiDichVuMenu> menuLDV;
+    unique_ptr<TuyenVanChuyenMenu> menuTVC;
+    unique_ptr<HoaDonCuocMenu> menuHD;
 
     void xoaManHinh() const { system("cls"); }
 
@@ -39,7 +45,7 @@ public:
                 if (pg.getMaBuuCucGui() == maBC) return true;
             }
             return false;
-        };
+            };
 
         auto kiemTraLDV_trong_BP = [&](string maDV) {
             auto list = repoBP.getAll();
@@ -47,13 +53,24 @@ public:
                 if (bp.getMaLoaiDichVu() == maDV) return true;
             }
             return false;
-        };
+            };
+
+        auto kiemTraTVC_trong_HD = [&](string maHD) {
+            auto list = repoHD.getAll();
+            for (const auto& hd : list) {
+                if (hd.getMaTuyen() == maHD) return true;
+            }
+            return false;
+            };
 
         // Khoi tao Menu
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
         menuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC);
         menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
+        menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, repoBC, kiemTraTVC_trong_HD);
+        menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC);
+
     }
 
     void run() {
@@ -65,22 +82,26 @@ public:
             cout << "2. Quan ly Phieu Gui\n";
             cout << "3. Quan ly Buu Pham\n";
             cout << "4. Quan ly Loai Dich Vu\n";
+            cout << "5. Quan ly Tuyen Van Chuyen\n";
+            cout << "6. Quan ly Hoa Don Cuoc Phi\n";
             cout << "0. Thoat chuong trinh\n";
             cout << "==========================================================\n";
             cout << "Nhap lua chon phan he (0-4): ";
 
             if (!(cin >> choice)) {
                 cin.clear();
-                cin.ignore(10000, '\n'); 
-                choice = -1; 
+                cin.ignore(10000, '\n');
+                choice = -1;
                 continue;
             }
 
             switch (choice) {
-            case 1: menuBC->menu(); break; 
+            case 1: menuBC->menu(); break;
             case 2: menuPG->menu(); break;
             case 3: menuBP->menu(); break;
             case 4: menuLDV->menu(); break;
+            case 5:menuTVC->menu(); break;
+            case 6:menuHD->menu(); break;
             case 0:
                 cout << "Dang thoat chuong trinh va sao luu du lieu...\n";
                 break;
