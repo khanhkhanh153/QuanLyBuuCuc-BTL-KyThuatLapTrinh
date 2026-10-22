@@ -12,30 +12,29 @@
 #include <cstdlib>
 #include "Entity.h"
 #include "Repository.h"
-#include "BuuCuc.h"
 
 using namespace std;
 
 // --- LOP THUC THE TUYENVANCHUYEN ---
 class TuyenVanChuyen : public Entity {
 private:
-    string maBuuCucDi;
-    string maBuuCucDen;
+    string diaDanhDi;
+    string diaDanhDen;
     double khoangCach;
 
 public:
-    TuyenVanChuyen() : Entity(), maBuuCucDi(""), maBuuCucDen(""), khoangCach(0.0) {}
+    TuyenVanChuyen() : Entity(), diaDanhDi(""), diaDanhDen(""), khoangCach(0.0) {}
 
-    string getMaBuuCucDi() const { return maBuuCucDi; }
-    void setMaBuuCucDi(const string& maBC) {
-        if (maBC.empty()) throw invalid_argument("Ma buu cuc di khong duoc de trong!");
-        maBuuCucDi = maBC;
+    string getDiaDanhDi() const { return diaDanhDi; }
+    void setDiaDanhDi(const string& dd) {
+        if (dd.empty()) throw invalid_argument("Dia danh di khong duoc de trong!");
+        diaDanhDi = dd;
     }
 
-    string getMaBuuCucDen() const { return maBuuCucDen; }
-    void setMaBuuCucDen(const string& maBC) {
-        if (maBC.empty()) throw invalid_argument("Ma buu cuc den khong duoc de trong!");
-        maBuuCucDen = maBC;
+    string getDiaDanhDen() const { return diaDanhDen; }
+    void setDiaDanhDen(const string& dd) {
+        if (dd.empty()) throw invalid_argument("Dia danh den khong duoc de trong!");
+        diaDanhDen = dd;
     }
 
     double getKhoangCach() const { return khoangCach; }
@@ -64,14 +63,14 @@ public:
 
     void xuat() const override {
         cout << left << setw(12) << maID
-            << "| " << setw(15) << maBuuCucDi
-            << "| " << setw(15) << maBuuCucDen
+            << "| " << setw(20) << diaDanhDi
+            << "| " << setw(20) << diaDanhDen
             << "| " << setw(15) << fixed << setprecision(1) << khoangCach << endl;
     }
 
     string toFileRecord() const override {
         stringstream ss;
-        ss << maID << "|" << maBuuCucDi << "|" << maBuuCucDen << "|" << khoangCach;
+        ss << maID << "|" << diaDanhDi << "|" << diaDanhDen << "|" << khoangCach;
         return ss.str();
     }
 
@@ -82,8 +81,8 @@ public:
         while (getline(ss, item, '|')) tokens.push_back(item);
         if (tokens.size() == 4) {
             maID = tokens[0];
-            maBuuCucDi = tokens[1];
-            maBuuCucDen = tokens[2];
+            diaDanhDi = tokens[1];
+            diaDanhDen = tokens[2];
             khoangCach = stod(tokens[3]);
         }
     }
@@ -93,23 +92,22 @@ public:
 class TuyenVanChuyenMenu {
 private:
     Repository<TuyenVanChuyen>& repoTVC;
-    Repository<BuuCuc>& repoBC;
     function<bool(string)> kiemTraTrongHoaDon; // Lambda kiem tra rang buoc xoa
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
 
     void inTieuDeBang() const {
-        cout << left << setw(15) << "Ma Tuyen"
-            << "| " << setw(25) << "Buu Cuc Di"
-            << "| " << setw(25) << "Buu Cuc Den"
+        cout << left << setw(12) << "Ma Tuyen"
+            << "| " << setw(20) << "Dia Danh Di"
+            << "| " << setw(20) << "Dia Danh Den"
             << "| " << setw(15) << "Khoang Cach(km)" << endl;
-        cout << string(65, '-') << endl;
+        cout << string(72, '-') << endl;
     }
 
 public:
-    TuyenVanChuyenMenu(Repository<TuyenVanChuyen>& tvc, Repository<BuuCuc>& bc, function<bool(string)> checkHD = nullptr)
-        : repoTVC(tvc), repoBC(bc), kiemTraTrongHoaDon(checkHD) {
+    TuyenVanChuyenMenu(Repository<TuyenVanChuyen>& tvc, function<bool(string)> checkHD = nullptr)
+        : repoTVC(tvc), kiemTraTrongHoaDon(checkHD) {
     }
 
     void themMoi() {
@@ -132,11 +130,9 @@ public:
 
         while (true) {
             try {
-                cout << "Nhap ma Buu cuc di (VD: BC01): ";
+                cout << "Nhap dia danh di (VD: Ha Noi): ";
                 getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoBC.findById(temp) == nullptr) throw invalid_argument("Buu cuc di nay chua ton tai!");
-                tvc.setMaBuuCucDi(temp);
+                tvc.setDiaDanhDi(temp);
                 break;
             }
             catch (const exception& e) {
@@ -146,12 +142,10 @@ public:
 
         while (true) {
             try {
-                cout << "Nhap ma Buu cuc den (VD: BC02): ";
+                cout << "Nhap dia danh den (VD: Da Nang): ";
                 getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoBC.findById(temp) == nullptr) throw invalid_argument("Buu cuc den nay chua ton tai!");
-                if (temp == tvc.getMaBuuCucDi()) throw invalid_argument("Buu cuc den phai khac buu cuc di!");
-                tvc.setMaBuuCucDen(temp);
+                if (temp == tvc.getDiaDanhDi()) throw invalid_argument("Dia danh den phai khac dia danh di!");
+                tvc.setDiaDanhDen(temp);
                 break;
             }
             catch (const exception& e) {
@@ -224,19 +218,21 @@ public:
         TuyenVanChuyen newData = *old;
         string temp;
 
-        cout << "Nhap ma Buu cuc di moi [" << old->getMaBuuCucDi() << "]: ";
+        cout << "Nhap dia danh di moi [" << old->getDiaDanhDi() << "]: ";
         getline(cin, temp);
         if (!temp.empty()) {
-            if (repoBC.findById(temp) == nullptr) cout << "Loi: Buu cuc khong ton tai! Giu nguyen ma cu.\n";
-            else newData.setMaBuuCucDi(temp);
+            newData.setDiaDanhDi(temp);
         }
 
-        cout << "Nhap ma Buu cuc den moi [" << old->getMaBuuCucDen() << "]: ";
+        cout << "Nhap dia danh den moi [" << old->getDiaDanhDen() << "]: ";
         getline(cin, temp);
         if (!temp.empty()) {
-            if (repoBC.findById(temp) == nullptr) cout << "Loi: Buu cuc khong ton tai! Giu nguyen ma cu.\n";
-            else if (temp == newData.getMaBuuCucDi()) cout << "Loi: Buu cuc den phai khac buu cuc di! Giu nguyen ma cu.\n";
-            else newData.setMaBuuCucDen(temp);
+            if (temp == newData.getDiaDanhDi()) {
+                cout << "Loi: Dia danh den phai khac dia danh di! Giu nguyen gia tri cu.\n";
+            }
+            else {
+                newData.setDiaDanhDen(temp);
+            }
         }
 
         try {
