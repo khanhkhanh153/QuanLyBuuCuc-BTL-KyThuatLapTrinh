@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdlib>
+#include <functional> 
 #include "Entity.h"
 #include "Repository.h"
 
@@ -25,15 +26,15 @@ public:
     BuuCuc() : Entity(), tenBuuCuc(""), diaChi(""), soDienThoai("") {}
 
     string getTenBuuCuc() const {
-        return tenBuuCuc; 
+        return tenBuuCuc;
     }
     void setTenBuuCuc(const string& ten) {
         if (ten.empty()) throw invalid_argument("Ten buu cuc khong duoc de trong!");
         tenBuuCuc = ten;
     }
 
-    string getDiaChi() const { 
-        return diaChi; 
+    string getDiaChi() const {
+        return diaChi;
     }
     void setDiaChi(const string& dc) {
         if (dc.empty()) throw invalid_argument("Dia chi khong duoc de trong!");
@@ -41,7 +42,7 @@ public:
     }
 
     string getSoDienThoai() const {
-        return soDienThoai; 
+        return soDienThoai;
     }
     void setSoDienThoai(const string& sdt) {
         if (sdt.empty()) throw invalid_argument("So dien thoai khong duoc de trong!");
@@ -56,7 +57,7 @@ public:
                 setTenBuuCuc(temp); break;
             }
             catch (const exception& e) {
-                cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; 
+                cout << "Loi: " << e.what() << " Vui long nhap lai.\n";
             }
         }
         while (true) {
@@ -64,8 +65,8 @@ public:
                 cout << "Nhap dia chi: "; getline(cin, temp);
                 setDiaChi(temp); break;
             }
-            catch (const exception& e) { 
-                cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; 
+            catch (const exception& e) {
+                cout << "Loi: " << e.what() << " Vui long nhap lai.\n";
             }
         }
         while (true) {
@@ -95,9 +96,9 @@ public:
         string item; vector<string> tokens;
         while (getline(ss, item, '|')) tokens.push_back(item);
         if (tokens.size() == 4) {
-            maID = tokens[0]; 
+            maID = tokens[0];
             tenBuuCuc = tokens[1];
-            diaChi = tokens[2]; 
+            diaChi = tokens[2];
             soDienThoai = tokens[3];
         }
     }
@@ -108,11 +109,14 @@ class BuuCucMenu {
 private:
     Repository<BuuCuc>& repo;
 
-    void xoaManHinh() const { 
+    // Khai bao con tro ham (callback) kiem tra rang buoc chung
+    function<bool(string)> kiemTraRangBuoc;
+
+    void xoaManHinh() const {
         system("cls");
     }
-    void tamDung() const { 
-        cout << "\nNhan Enter de tiep tuc..."; cin.get(); 
+    void tamDung() const {
+        cout << "\nNhan Enter de tiep tuc..."; cin.get();
     }
     void inTieuDeBang() const {
         cout << left << setw(10) << "Ma BC" << "| " << setw(25) << "Ten Buu Cuc"
@@ -121,21 +125,23 @@ private:
     }
 
 public:
-    BuuCucMenu(Repository<BuuCuc>& r) : repo(r) {}
+    BuuCucMenu(Repository<BuuCuc>& r, function<bool(string)> kiemTra = nullptr)
+        : repo(r), kiemTraRangBuoc(kiemTra) {
+    }
 
     void themMoi() {
         cout << "\n=== THEM MOI BUU CUC ===\n";
         BuuCuc bc; string id;
         while (true) {
             try {
-                cout << "Nhap ma buu cuc (VD: BC01): "; 
+                cout << "Nhap ma buu cuc (VD: BC01): ";
                 getline(cin, id);
                 bc.setMaID(id);
                 if (repo.findById(id) != nullptr) throw invalid_argument("Ma buu cuc da ton tai!");
                 break;
             }
             catch (const exception& e) {
-                cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; 
+                cout << "Loi: " << e.what() << " Vui long nhap lai.\n";
             }
         }
         bc.nhap();
@@ -145,8 +151,8 @@ public:
 
     void xemDanhSach() const {
         auto list = repo.getAll();
-        if (list.empty()) { 
-            cout << "\nDanh sach trong!\n"; return; 
+        if (list.empty()) {
+            cout << "\nDanh sach trong!\n"; return;
         }
         cout << "\n============================= DANH SACH BUU CUC =============================\n";
         inTieuDeBang();
@@ -165,16 +171,15 @@ public:
         else cout << "Khong tim thay buu cuc ma: " << id << "\n";
     }
 
-    // CHUC NANG 4: SAP XEP
     void sapXep() {
         auto list = repo.getAll();
         if (list.empty()) {
             cout << "\nDanh sach trong!\n";
-            return; 
+            return;
         }
 
         sort(list.begin(), list.end(), [](const BuuCuc& a, const BuuCuc& b) {
-            return a.getTenBuuCuc() < b.getTenBuuCuc(); // Sap xep A-Z
+            return a.getTenBuuCuc() < b.getTenBuuCuc();
             });
 
         cout << "-> Da sap xep danh sach hien thi theo Ten Buu Cuc (A-Z)!\n";
@@ -187,13 +192,13 @@ public:
         string id; cout << "Nhap ma buu cuc can cap nhat: ";
         getline(cin, id);
         BuuCuc* old = repo.findById(id);
-        if (old == nullptr) { 
+        if (old == nullptr) {
             cout << "Khong tim thay ma nay!\n";
             return;
         }
 
-        cout << "\nThong tin hien tai:\n"; 
-        inTieuDeBang(); 
+        cout << "\nThong tin hien tai:\n";
+        inTieuDeBang();
         old->xuat();
         cout << "\n(Luu y: De trong neu muon giu nguyen gia tri cu)\n";
 
@@ -216,15 +221,30 @@ public:
         string id; cout << "Nhap ma buu cuc can xoa: ";
         getline(cin, id);
         BuuCuc* target = repo.findById(id);
-        if (target == nullptr) { 
-            cout << "Khong tim thay ma nay!\n"; 
+        if (target == nullptr) {
+            cout << "Khong tim thay ma nay!\n";
             return;
         }
 
         cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
-        cout << "\nCanh bao: Neu buu cuc nay dang chua Phieu gui, xoa se gay loi du lieu!\n";
-        cout << "Ban co chac chan muon xoa khong? (y/n): ";
-        char confirm; cin >> confirm; cin.ignore(10000, '\n');
+
+ 
+        // KIEM TRA RANG BUOC TRUOC KHI XOA
+      
+        if (kiemTraRangBuoc != nullptr) {
+            bool dangDuocSuDung = kiemTraRangBuoc(id);
+            if (dangDuocSuDung) {
+                cout << "\nKHONG THE XOA!\n";
+                cout << "-> Buu cuc nay hien dang duoc su dung trong Phieu Gui hoac Buu Pham.\n";
+                cout << "-> Vui long kiem tra lai cac lien ket du lieu truoc khi xoa.\n";
+                return; // Chan thao tac xoa
+            }
+        }
+
+        cout << "\nBan co chac chan muon xoa khong? (y/n): ";
+        char confirm;
+        cin >> confirm;
+        cin.ignore(10000, '\n');
 
         if (confirm == 'y' || confirm == 'Y') {
             if (repo.removeById(id)) cout << "-> Xoa thanh cong!\n";
@@ -245,8 +265,8 @@ public:
             cout << "6. Xoa\n";
             cout << "0. Quay lai menu chinh\n";
             cout << "=====================================\nLua chon cua ban: ";
-            if (!(cin >> choice)) { 
-                cin.clear(); choice = -1; 
+            if (!(cin >> choice)) {
+                cin.clear(); choice = -1;
             }
             cin.ignore(10000, '\n');
             if (choice == 0) break;
