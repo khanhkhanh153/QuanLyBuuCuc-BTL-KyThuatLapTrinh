@@ -40,12 +40,20 @@ public:
     Application() {
         // Các lambda kiểm tra ràng buộc
         auto kiemTraBC_trong_PG = [&](string maBC) {
-            auto list = repoPG.getAll();
-            for (const auto& pg : list) {
+            // Kiem tra trong Phieu Gui
+            auto listPG = repoPG.getAll();
+            for (const auto& pg : listPG) {
                 if (pg.getMaBuuCucGui() == maBC) return true;
             }
+
+            // Kiem tra trong Buu Pham (su dung getMaBuuCucGui())
+            auto listBP = repoBP.getAll();
+            for (const auto& bp : listBP) {
+                if (bp.getMaBuuCucGui() == maBC) return true;
+            }
+
             return false;
-            };
+        };
 
         auto kiemTraLDV_trong_BP = [&](string maDV) {
             auto list = repoBP.getAll();
@@ -68,7 +76,7 @@ public:
         menuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC);
         menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
-        menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, repoBC, kiemTraTVC_trong_HD);
+        menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
         menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC);
 
     }
@@ -84,9 +92,11 @@ public:
             cout << "4. Quan ly Loai Dich Vu\n";
             cout << "5. Quan ly Tuyen Van Chuyen\n";
             cout << "6. Quan ly Hoa Don Cuoc Phi\n";
+            cout << "7. Quan ly Khach Hang Gui\n";
+            cout << "6. Quan ly Phieu Khieu Nai\n";           
             cout << "0. Thoat chuong trinh\n";
             cout << "==========================================================\n";
-            cout << "Nhap lua chon phan he (0-4): ";
+            cout << "Nhap lua chon phan he (0-8): ";
 
             if (!(cin >> choice)) {
                 cin.clear();
