@@ -1,0 +1,10 @@
+HD01|TVC01|25000|5000|Da thanh toan
+HD02|TVC02|50000|0|Chua thanh toan
+HD03|TVC03|120000|15000|Da thanh toan
+HD04|TVC01|35000|2000|Chua thanh toan
+HD05|TVC04|85000|10000|Da thanh toan
+HD06|TVC05|40000|0|Chua thanh toan
+HD07|TVC02|65000|5000|Da thanh toan
+HD08|TVC06|150000|20000|Chua thanh toan
+HD09|TVC03|95000|8000|Da thanh toan
+HD10|TVC07|30000|0|Chua thanh toan
