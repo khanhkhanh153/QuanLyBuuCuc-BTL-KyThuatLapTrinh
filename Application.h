@@ -12,6 +12,8 @@
 #include "LoaiDichVu.h"
 #include "TuyenVanChuyen.h"
 #include "HoaDonCuoc.h"
+#include "KhachHangGui.h"
+#include "PhieuKhieuNai.h"
 
 using namespace std;
 
@@ -24,6 +26,8 @@ private:
     Repository<LoaiDichVu> repoLDV{ "data/loai_dich_vu.txt" };
     Repository <TuyenVanChuyen> repoTVC{ "data/tuyen_van_chuyen.txt" };
     Repository <HoaDonCuoc> repoHD{ "data/hoa_don_cuoc_phi.txt" };
+    Repository<KhachHangGui> repoKH{ "data/khach_hang_gui.txt" };
+    Repository<PhieuKhieuNai> repoPKN{ "data/phieu_khieu_nai.txt" };
 
     // 2. CAC CON TRO QUAN LY MENU
     unique_ptr<BuuCucMenu> menuBC;
@@ -32,6 +36,8 @@ private:
     unique_ptr<LoaiDichVuMenu> menuLDV;
     unique_ptr<TuyenVanChuyenMenu> menuTVC;
     unique_ptr<HoaDonCuocMenu> menuHD;
+    unique_ptr<KhachHangGuiMenu> menuKH;
+    unique_ptr<PhieuKhieuNaiMenu> menuPKN;
 
     void xoaManHinh() const { system("cls"); }
 
@@ -71,6 +77,14 @@ public:
             return false;
             };
 
+        auto kiemTraXoaKhachHang = [&](string maKH) {
+            auto list = repoPKN.getAll();
+            for (const auto& pkn : list) {
+                if (pkn.getMaKhachHang() == maKH) return true;
+            }
+            return false;
+            };
+
         // Khoi tao Menu
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
         menuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC);
@@ -78,7 +92,8 @@ public:
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
         menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC);
-
+        menuKH = make_unique<KhachHangGuiMenu>(repoKH, kiemTraXoaKhachHang);
+        menuPKN = make_unique<PhieuKhieuNaiMenu>(repoPKN, repoKH);
     }
 
     void run() {
@@ -93,7 +108,7 @@ public:
             cout << "5. Quan ly Tuyen Van Chuyen\n";
             cout << "6. Quan ly Hoa Don Cuoc Phi\n";
             cout << "7. Quan ly Khach Hang Gui\n";
-            cout << "6. Quan ly Phieu Khieu Nai\n";           
+            cout << "8. Quan ly Phieu Khieu Nai\n";           
             cout << "0. Thoat chuong trinh\n";
             cout << "==========================================================\n";
             cout << "Nhap lua chon phan he (0-8): ";
@@ -112,6 +127,8 @@ public:
             case 4: menuLDV->menu(); break;
             case 5:menuTVC->menu(); break;
             case 6:menuHD->menu(); break;
+            case 7:menuKH->menu(); break;
+            case 8:menuPKN->menu(); break;
             case 0:
                 cout << "Dang thoat chuong trinh va sao luu du lieu...\n";
                 break;
