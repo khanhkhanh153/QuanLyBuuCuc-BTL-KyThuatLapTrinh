@@ -52,22 +52,26 @@ public:
                 if (pg.getMaBuuCucGui() == maBC) return true;
             }
 
-            // Kiem tra trong Buu Pham (su dung getMaBuuCucGui())
-            auto listBP = repoBP.getAll();
-            for (const auto& bp : listBP) {
-                if (bp.getMaBuuCucGui() == maBC) return true;
-            }
-
-            return false;
-        };
-
-        auto kiemTraLDV_trong_BP = [&](string maDV) {
-            auto list = repoBP.getAll();
-            for (const auto& bp : list) {
-                if (bp.getMaLoaiDichVu() == maDV) return true;
+           // Lambda kiểm tra Loại dịch vụ có trong Hóa đơn không
+        auto kiemTraLDV_trong_HD = [&](string maDV) {
+            auto listHD = repoHD.getAll();
+            for (const auto& hd : listHD) {
+                if (hd.getMaDichVu() == maDV) return true;
+                // Giả sử HoaDonCuoc có hàm getMaLoaiDichVu() hoặc tương đương
+                // Nếu lớp hóa đơn dùng mã dịch vụ, ta so sánh ở đây
             }
             return false;
-            };
+        }
+
+        // Lambda kiểm tra Bưu phẩm có trong Phiếu gửi không
+        auto kiemTraBP_trong_PG = [&](string maBP) {
+            auto listPG = repoPG.getAll();
+            for (const auto& pg : listPG) {
+                if(pg.getMaBuuPham() == maBP) return true;
+                // Kiểm tra nếu mã bưu phẩm còn nằm trong phiếu gửi
+            }
+            return false;
+        }
 
         auto kiemTraTVC_trong_HD = [&](string maHD) {
             auto list = repoHD.getAll();
