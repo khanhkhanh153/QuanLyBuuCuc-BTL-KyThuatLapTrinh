@@ -52,13 +52,19 @@ public:
                 if (pg.getMaBuuCucGui() == maBC) return true;
             }
 
+            auto listBP = repoPKN.getAll();
+            for (const auto& pkn : listBP) {
+                if (pkn.getMaBuuCucGui() == maBC) 
+                    return true;
+            }
+            return false;
+        }
+
            // Lambda kiểm tra Loại dịch vụ có trong Hóa đơn không
         auto kiemTraLDV_trong_HD = [&](string maDV) {
             auto listHD = repoHD.getAll();
             for (const auto& hd : listHD) {
                 if (hd.getMaDichVu() == maDV) return true;
-                // Giả sử HoaDonCuoc có hàm getMaLoaiDichVu() hoặc tương đương
-                // Nếu lớp hóa đơn dùng mã dịch vụ, ta so sánh ở đây
             }
             return false;
         }
@@ -68,7 +74,6 @@ public:
             auto listPG = repoPG.getAll();
             for (const auto& pg : listPG) {
                 if(pg.getMaBuuPham() == maBP) return true;
-                // Kiểm tra nếu mã bưu phẩm còn nằm trong phiếu gửi
             }
             return false;
         }
@@ -91,7 +96,7 @@ public:
 
         // Khoi tao Menu
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
-        menuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC);
+        enuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC, repoKH, repoBP);
         menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
