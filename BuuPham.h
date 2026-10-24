@@ -13,7 +13,7 @@
 #include "Entity.h"
 #include "Repository.h"
 #include "BuuCuc.h"
-#include "HoaDonCuoc.h" // Tham chiếu tới hóa đơn theo sơ đồ mới
+#include "HoaDonCuoc.h"
 
 using namespace std;
 
@@ -21,12 +21,11 @@ class BuuPham : public Entity {
 private:
     string tenBuuPham;
     double trongLuong;
-    double cuocPhi;
     string maBuuCucGui;
-    string maHoaDon; // Khóa ngoại tham chiếu tới Cước phí - Hóa đơn theo sơ đồ mới
+    string maHoaDon; // Khóa ngoại tham chiếu sang Hóa đơn
 
 public:
-    BuuPham() : Entity(), tenBuuPham(""), trongLuong(0.0), cuocPhi(0.0), maBuuCucGui(""), maHoaDon("") {}
+    BuuPham() : Entity(), tenBuuPham(""), trongLuong(0.0), maBuuCucGui(""), maHoaDon("") {}
 
     string getTenBuuPham() const { return tenBuuPham; }
     void setTenBuuPham(const string& ten) {
@@ -38,12 +37,6 @@ public:
     void setTrongLuong(double tl) {
         if (tl <= 0) throw invalid_argument("Trong luong phai lon hon 0!");
         trongLuong = tl;
-    }
-
-    double getCuocPhi() const { return cuocPhi; }
-    void setCuocPhi(double cp) {
-        if (cp < 0) throw invalid_argument("Cuoc phi khong duoc am!");
-        cuocPhi = cp;
     }
 
     string getMaBuuCucGui() const { return maBuuCucGui; }
@@ -78,30 +71,18 @@ public:
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
         }
-        while (true) {
-            try {
-                cout << "Nhap cuoc phi (VND): "; cin >> cuocPhi;
-                if (cin.fail() || cuocPhi < 0) {
-                    cin.clear(); cin.ignore(10000, '\n');
-                    throw invalid_argument("Cuoc phi phai la so khong am!");
-                }
-                cin.ignore(); break;
-            }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
-        }
     }
 
     void xuat() const override {
         cout << left << setw(8) << maID << "| " << setw(18) << tenBuuPham
-             << "| " << setw(10) << fixed << setprecision(1) << trongLuong 
-             << "| " << setw(10) << fixed << setprecision(0) << cuocPhi 
+             << "| " << setw(12) << fixed << setprecision(1) << trongLuong 
              << "| " << setw(10) << maBuuCucGui 
              << "| " << setw(10) << maHoaDon << endl;
     }
 
     string toFileRecord() const override {
         stringstream ss;
-        ss << maID << "|" << tenBuuPham << "|" << trongLuong << "|" << cuocPhi << "|" << maBuuCucGui << "|" << maHoaDon;
+        ss << maID << "|" << tenBuuPham << "|" << trongLuong << "|" << maBuuCucGui << "|" << maHoaDon;
         return ss.str();
     }
 
@@ -109,13 +90,12 @@ public:
         stringstream ss(record);
         string item; vector<string> tokens;
         while (getline(ss, item, '|')) tokens.push_back(item);
-        if (tokens.size() >= 6) {
+        if (tokens.size() >= 5) {
             maID = tokens[0];
             tenBuuPham = tokens[1];
             trongLuong = stod(tokens[2]);
-            cuocPhi = stod(tokens[3]);
-            maBuuCucGui = tokens[4];
-            maHoaDon = tokens[5];
+            maBuuCucGui = tokens[3];
+            maHoaDon = tokens[4];
         }
     }
 };
@@ -126,16 +106,14 @@ private:
     Repository<BuuCuc>& repoBC;
     Repository<HoaDonCuoc>& repoHD; 
     
-    // Callback kiểm tra xem bưu phẩm có còn nằm trong Phiếu gửi không trước khi xóa
     function<bool(string)> kiemTraRangBuocPhieuGui;
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
         cout << left << setw(8) << "Ma BP" << "| " << setw(18) << "Ten Buu Pham"
-             << "| " << setw(10) << "Trong Luong" << "| " << setw(10) << "Cuoc Phi" 
-             << "| " << setw(10) << "Ma BC" << "| " << setw(10) << "Ma HD" << endl;
-        cout << string(72, '-') << endl;
+             << "| " << setw(12) << "Trong Luong" << "| " << setw(10) << "Ma BC" << "| " << setw(10) << "Ma HD" << endl;
+        cout << string(64, '-') << endl;
     }
 
 public:
@@ -210,11 +188,12 @@ public:
         auto list = repoBP.getAll();
         if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
 
+        // Sắp xếp theo Trọng lượng thay vì cước phí
         sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
-            return a.getCuocPhi() < b.getCuocPhi();
+            return a.getTrongLuong() < b.getTrongLuong();
         });
 
-        cout << "-> Da sap xep danh sach theo Cuoc Phi (Tang dan)!\n";
+        cout << "-> Da sap xep danh sach theo Trong Luong (Tang dan)!\n";
         cout << "\n============================= KET QUA SAP XEP =============================\n";
         inTieuDeBang();
         for (const auto& item : list) item.xuat();
@@ -236,9 +215,6 @@ public:
 
         cout << "Nhap trong luong moi [" << old->getTrongLuong() << "]: "; getline(cin, temp);
         if (!temp.empty()) newData.setTrongLuong(stod(temp));
-
-        cout << "Nhap cuoc phi moi [" << old->getCuocPhi() << "]: "; getline(cin, temp);
-        if (!temp.empty()) newData.setCuocPhi(stod(temp));
 
         cout << "Nhap ma buu cuc moi [" << old->getMaBuuCucGui() << "]: "; getline(cin, temp);
         if (!temp.empty()) {
@@ -269,7 +245,6 @@ public:
 
         cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
         
-        // Kiểm tra xem bưu phẩm có còn nằm trong Phiếu gửi không trước khi xóa
         if (kiemTraRangBuocPhieuGui != nullptr && kiemTraRangBuocPhieuGui(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
             cout << "-> Buu pham nay dang duoc tham chiếu trong Phieu gui.\n";
@@ -294,7 +269,7 @@ public:
             cout << "1. Them buu pham moi\n";
             cout << "2. Xem danh sach\n";
             cout << "3. Tim kiem theo ma\n";
-            cout << "4. Sap xep theo Cuoc Phi\n";
+            cout << "4. Sap xep theo Trong Luong\n";
             cout << "5. Cap nhat thong tin\n";
             cout << "6. Xoa buu pham\n";
             cout << "0. Quay lai menu chinh\n";
@@ -316,6 +291,6 @@ public:
             tamDung();
         } while (choice != 0);
     }
-}
+};
 
 #endif
