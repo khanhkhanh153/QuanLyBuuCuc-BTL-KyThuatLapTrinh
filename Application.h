@@ -54,37 +54,37 @@ public:
 
             auto listBC = repoPKN.getAll();
             for (const auto& pkn : listBC) {
-                if (pkn.getMaBuuCuc() == maBC) 
+                if (pkn.getMaBuuCuc() == maBC)
                     return true;
             }
             return false;
-        }
+        };
 
-           // Lambda kiểm tra Loại dịch vụ có trong Hóa đơn không
+        // Lambda kiểm tra Loại dịch vụ có trong Hóa đơn không
         auto kiemTraLDV_trong_HD = [&](string maDV) {
             auto listHD = repoHD.getAll();
             for (const auto& hd : listHD) {
-                if (hd.getMaDichVu() == maDV) return true;
+                if (hd.getMaLoaiDichVu() == maDV) return true;
             }
             return false;
-        }
+        };
 
-        // Lambda kiểm tra Bưu phẩm có trong Phiếu gửi không
+            // Lambda kiểm tra Bưu phẩm có trong Phiếu gửi không
         auto kiemTraBP_trong_PG = [&](string maBP) {
             auto listPG = repoPG.getAll();
             for (const auto& pg : listPG) {
-                if(pg.getMaBuuPham() == maBP) return true;
+                if (pg.getMaBuuPham() == maBP) return true;
             }
             return false;
-        }
+        };
 
-        auto kiemTraTVC_trong_HD = [&](string maHD) {
+         auto kiemTraTVC_trong_HD = [&](string maHD) {
             auto list = repoHD.getAll();
             for (const auto& hd : list) {
                 if (hd.getMaTuyen() == maHD) return true;
             }
             return false;
-        };
+         };
 
         auto kiemTraHD_trong_BP = [&](string maHD) {
             auto list = repoBP.getAll();
@@ -98,10 +98,10 @@ public:
         auto kiemTraXoaKhachHang = [&](string maKH) {
             auto list = repoPKN.getAll();
             for (const auto& pkn : list) {
-                if (pkn.getMaKhachHang() == maKH) return true;
+                if (pkn.getMaKhachHangGui() == maKH) return true;
             }
             auto listKH = repoPG.getAll();
-            for (const auto& pg : list) {
+            for (const auto& pg : listKH) {
                 if (pg.getMaKhachHang() == maKH) return true;
             }
             return false;
@@ -109,8 +109,8 @@ public:
 
         // Khoi tao Menu
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
-        enuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC, repoKH, repoBP);
-        menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
+        menuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC, repoKH, repoBP);
+        menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_HD);
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoLDV);
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
         menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC, repoLDV, kiemTraHD_trong_BP);
@@ -130,7 +130,7 @@ public:
             cout << "5. Quan ly Tuyen Van Chuyen\n";
             cout << "6. Quan ly Hoa Don Cuoc Phi\n";
             cout << "7. Quan ly Khach Hang Gui\n";
-            cout << "8. Quan ly Phieu Khieu Nai\n";           
+            cout << "8. Quan ly Phieu Khieu Nai\n";
             cout << "0. Thoat chuong trinh\n";
             cout << "==========================================================\n";
             cout << "Nhap lua chon phan he (0-8): ";
