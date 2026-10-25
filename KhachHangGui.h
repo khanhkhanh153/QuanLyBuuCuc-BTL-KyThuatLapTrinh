@@ -1,3 +1,4 @@
+//MAI DUC ANH
 #ifndef KHACHHANGGUI_H
 #define KHACHHANGGUI_H
 
