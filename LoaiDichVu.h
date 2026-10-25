@@ -193,7 +193,7 @@ public:
         // Kiểm tra ràng buộc tham chiếu trước khi xóa
         if (kiemTraRangBuocHD != nullptr && kiemTraRangBuocHD(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
-            cout << "-> Loai dich vu nay dang duoc tham chiếu trong hoa don.\n";
+            cout << "-> Loai dich vu nay dang duoc su dung trong hoa don.\n";
             return;
         }
 
