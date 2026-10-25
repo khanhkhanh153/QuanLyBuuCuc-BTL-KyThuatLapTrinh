@@ -1,10 +1,10 @@
-KN01|KH01|Hang bi mop méo vo hop ngoai khi nhan|Cho xu ly
-KN02|KH02|Giao hang cham hon so voi thoi gian cam ket|Dang xu ly
-KN03|KH03|Nhan vien giao hang thai do khong tot|Da hoan thanh
-KN04|KH04|Thieu hang so luong ben trong buu pham|Cho xu ly
-KN05|KH05|Thu sai cuoc phi van chuyen so voi bao gia|Dang xu ly
-KN06|KH06|Buu pham bi uot do troi mua khi van chuyen|Cho xu ly
-KN07|KH07|Khong lien lac duoc voi buu ta giao hang|Da hoan thanh
-KN08|KH08|Thong tin nguoi nhan tren phieu bi sai dia chi|Dang xu ly
-KN09|KH09|Yeu cau thay doi dia chi nhan hang dot xuat|Cho xu ly
-KN10|KH10|Hang de vo nhung khong thay dan tem canh bao|Da hoan thanh
+KN01|KH01|BC01|Hang bi mop méo vo hop ngoai khi nhan|Cho xu ly
+KN02|KH02|BC02|Giao hang cham hon so voi thoi gian cam ket|Dang xu ly
+KN03|KH03|BC03|Nhan vien giao hang thai do khong tot|Da hoan thanh
+KN04|KH04|BC04|Thieu hang so luong ben trong buu pham|Cho xu ly
+KN05|KH05|BC05|Thu sai cuoc phi van chuyen so voi bao gia|Dang xu ly
+KN06|KH06|BC06|Buu pham bi uot do troi mua khi van chuyen|Cho xu ly
+KN07|KH07|BC07|Khong lien lac duoc voi buu ta giao hang|Da hoan thanh
+KN08|KH08|BC08|Thong tin nguoi nhan tren phieu bi sai dia chi|Dang xu ly
+KN09|KH09|BC09|Yeu cau thay doi dia chi nhan hang dot xuat|Cho xu ly
+KN10|KH10|BC10|Hang de vo nhung khong thay dan tem canh bao|Da hoan thanh
