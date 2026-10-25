@@ -111,7 +111,7 @@ public:
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
         enuPG = make_unique<PhieuGuiMenu>(repoPG, repoBC, repoKH, repoBP);
         menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
-        menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
+        menuBP = make_unique<BuuPhamMenu>(repoBP, repoLDV);
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
         menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC, repoLDV, kiemTraHD_trong_BP);
         menuKH = make_unique<KhachHangGuiMenu>(repoKH, kiemTraXoaKhachHang);
