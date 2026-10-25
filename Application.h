@@ -52,8 +52,8 @@ public:
                 if (pg.getMaBuuCucGui() == maBC) return true;
             }
 
-            auto listBP = repoPKN.getAll();
-            for (const auto& pkn : listBP) {
+            auto listBC = repoPKN.getAll();
+            for (const auto& pkn : listBC) {
                 if (pkn.getMaBuuCucGui() == maBC) 
                     return true;
             }
