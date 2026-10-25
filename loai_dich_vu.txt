@@ -8,3 +8,6 @@ DV07|Chuyen phat tai lieu khan cap|40000|Chuyen tai lieu, hop dong khan
 DV08|Chuyen phat cuoi tuan|25000|Giao hang ca vao ngay thu bay, chu nhat
 DV09|Chuyen phat hen gio|35000|Giao dung khung gio khach hang yeu cau
 DV10|Chuyen phat quoc te|200000|Dich vu van chuyen di nuoc ngoai
+DV11|Chuyen phat hang de vao|45000|Ho tro dong goi va bao quan dac biet
+DV12|Chuyen phat noi thanh|15000|Van chuyen nhanh trong noi thanh
+DV13|Chuyen phat sieu toc 2H|60000|Cam kết giao trong 2 giờ nội thành
