@@ -1,3 +1,163 @@
+#ifndef PHIEUKHIEUNAI_H
+#define PHIEUKHIEUNAI_H
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+#include <stdexcept>
+#include <cstdlib>
+#include <functional>
+#include "Entity.h"
+#include "Repository.h"
+#include "BuuCuc.h"
+#include "KhachHangGui.h" // Can co class KhachHangGui ke thua Entity
+
+using namespace std;
+
+// ============================================================
+// LOP THUC THE: PHIEU KHIẾU NAI
+// MaKHGui va maBuuCuc la khoa tham chieu den du lieu da ton tai.
+// ============================================================
+class PhieuKhieuNai : public Entity {
+private:
+    string maKhachHangGui;
+    string maBuuCuc;
+    string noiDung;
+    string trangThai;
+
+public:
+    PhieuKhieuNai()
+        : Entity(), maKhachHangGui(""), maBuuCuc(""),
+          noiDung(""), trangThai("Chua xu ly") {}
+
+    string getMaKhachHangGui() const { return maKhachHangGui; }
+    void setMaKhachHangGui(const string& maKH) {
+        if (maKH.empty()) throw invalid_argument("Ma khach hang gui khong duoc de trong!");
+        maKhachHangGui = maKH;
+    }
+
+    string getMaBuuCuc() const { return maBuuCuc; }
+    void setMaBuuCuc(const string& maBC) {
+        if (maBC.empty()) throw invalid_argument("Ma buu cuc khong duoc de trong!");
+        maBuuCuc = maBC;
+    }
+
+    string getNoiDung() const { return noiDung; }
+    void setNoiDung(const string& nd) {
+        if (nd.empty()) throw invalid_argument("Noi dung khieu nai khong duoc de trong!");
+        noiDung = nd;
+    }
+
+    string getTrangThai() const { return trangThai; }
+    void setTrangThai(const string& tt) {
+        if (tt.empty()) throw invalid_argument("Trang thai khong duoc de trong!");
+        trangThai = tt;
+    }
+
+    // Nhap cac truong noi dung; hai ma tham chieu duoc menu kiem tra.
+    void nhap() override {
+        string temp;
+        while (true) {
+            try {
+                cout << "Nhap noi dung khieu nai: ";
+                getline(cin, temp);
+                setNoiDung(temp);
+                break;
+            } catch (const exception& e) {
+                cout << "Loi: " << e.what() << " Vui long nhap lai.\n";
+            }
+        }
+
+        cout << "Nhap trang thai [mac dinh: Chua xu ly]: ";
+        getline(cin, temp);
+        if (!temp.empty()) setTrangThai(temp);
+    }
+
+    void xuat() const override {
+        cout << left << setw(12) << maID
+             << "| " << setw(15) << maKhachHangGui
+             << "| " << setw(12) << maBuuCuc
+             << "| " << setw(35) << noiDung
+             << "| " << setw(18) << trangThai << '\n';
+    }
+
+    string toFileRecord() const override {
+        stringstream ss;
+        ss << maID << "|" << maKhachHangGui << "|" << maBuuCuc
+           << "|" << noiDung << "|" << trangThai;
+        return ss.str();
+    }
+
+    void fromFileRecord(const string& record) override {
+        stringstream ss(record);
+        string item;
+        vector<string> tokens;
+        while (getline(ss, item, '|')) tokens.push_back(item);
+        if (tokens.size() == 5) {
+            maID = tokens[0];
+            maKhachHangGui = tokens[1];
+            maBuuCuc = tokens[2];
+            noiDung = tokens[3];
+            trangThai = tokens[4];
+        }
+    }
+};
+
+// ============================================================
+// MENU: Kiem tra ma khach hang va ma buu cuc truoc khi ghi file
+// ============================================================
+class PhieuKhieuNaiMenu {
+private:
+    Repository<PhieuKhieuNai>& repoPKN;
+    Repository<BuuCuc>& repoBC;
+    Repository<KhachHangGui>& repoKH;
+
+    void xoaManHinh() const { system("cls"); }
+    void tamDung() const {
+        cout << "\nNhan Enter de tiep tuc...";
+        cin.get();
+    }
+    void inTieuDeBang() const {
+        cout << left << setw(12) << "Ma PKN"
+             << "| " << setw(15) << "Ma KH Gui"
+             << "| " << setw(12) << "Ma BC"
+             << "| " << setw(35) << "Noi dung"
+             << "| " << setw(18) << "Trang thai" << '\n';
+        cout << string(102, '-') << '\n';
+    }
+
+    string nhapMaKhachHangHopLe(const string& maMacDinh = "") {
+        string ma;
+        while (true) {
+            cout << "Nhap ma khach hang gui";
+            if (!maMacDinh.empty()) cout << " [" << maMacDinh << "]";
+            cout << ": ";
+            getline(cin, ma);
+            if (ma.empty() && !maMacDinh.empty()) return maMacDinh;
+            if (repoKH.findById(ma) != nullptr) return ma;
+            cout << "Loi: Ma khach hang gui khong ton tai. Hay nhap ma da co trong du lieu KhachHangGui.\n";
+        }
+    }
+
+    string nhapMaBuuCucHopLe(const string& maMacDinh = "") {
+        string ma;
+        while (true) {
+            cout << "Nhap ma buu cuc";
+            if (!maMacDinh.empty()) cout << " [" << maMacDinh << "]";
+            cout << ": ";
+            getline(cin, ma);
+            if (ma.empty() && !maMacDinh.empty()) return maMacDinh;
+            if (repoBC.findById(ma) != nullptr) return ma;
+            cout << "Loi: Ma buu cuc khong ton tai. Hay nhap ma da co trong du lieu BuuCuc.\n";
+        }
+    }
+
+public:
+    PhieuKhieuNaiMenu(Repository<PhieuKhieuNai>& pkn,
+                      Repository<BuuCuc>& bc,
                       Repository<KhachHangGui>& kh)
         : repoPKN(pkn), repoBC(bc), repoKH(kh) {}
 
