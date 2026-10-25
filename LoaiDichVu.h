@@ -238,6 +238,6 @@ public:
             tamDung();
         } while (choice != 0);
     }
-}
+};
 
 #endif
