@@ -151,9 +151,24 @@ public:
             try {
                 cout << "Nhap ma Hoa don cuoc (VD: HD01): "; getline(cin, temp);
                 if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
+                
+                // 1. Kiểm tra xem hóa đơn có tồn tại trong hệ thống hay không
                 if (repoHD.findById(temp) == nullptr) {
                     throw invalid_argument("Hoa don nay chua ton tai trong he thong!");
                 }
+
+                // 2. Kiểm tra xem mã hóa đơn này đã được gán cho bưu phẩm nào khác chưa (tránh trùng lặp 1-1)
+                bool daDung = false;
+                for (const auto& item : repoBP.getAll()) {
+                    if (item.getMaHoaDon() == temp) {
+                        daDung = true;
+                        break;
+                    }
+                }
+                if (daDung) {
+                    throw invalid_argument("Ma hoa don nay da duoc su dung cho mot buu pham khac!");
+                }
+
                 bp.setMaHoaDon(temp);
                 break;
             }
@@ -188,7 +203,6 @@ public:
         auto list = repoBP.getAll();
         if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
 
-        // Sắp xếp theo Trọng lượng thay vì cước phí
         sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
             return a.getTrongLuong() < b.getTrongLuong();
         });
@@ -230,7 +244,19 @@ public:
             if (repoHD.findById(temp) == nullptr) {
                 cout << "Loi: Hoa don khong ton tai! Giu nguyen ma cu.\n";
             } else {
-                newData.setMaHoaDon(temp);
+                // Kiểm tra trùng lặp mã hóa đơn (trừ chính bưu phẩm đang cập nhật)
+                bool daDung = false;
+                for (const auto& item : repoBP.getAll()) {
+                    if (item.getMaID() != id && item.getMaHoaDon() == temp) {
+                        daDung = true;
+                        break;
+                    }
+                }
+                if (daDung) {
+                    cout << "Loi: Ma hoa don nay da duoc su dung cho buu pham khac! Giu nguyen ma cu.\n";
+                } else {
+                    newData.setMaHoaDon(temp);
+                }
             }
         }
 
