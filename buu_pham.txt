@@ -1,15 +1,13 @@
-BP01|Tai nghe Bluetooth|0.5|BC01|HD01
-BP02|Sach lap trinh C++|1.2|BC02|HD02
-BP03|Laptop Gaming ROG|2.8|BC01|HD03
-BP04|Ao khoac mua dong|0.8|BC03|HD04
-BP05|Tai lieu khan cap|0.2|BC02|HD05
-BP06|Giay the thao Nike|1.0|BC01|HD06
-BP07|Dien thoai thong minh|0.4|BC03|HD07
-BP08|Dong ho thoi trang|0.3|BC02|HD08
-BP09|May anh du lich|1.5|BC01|HD09
-BP10|Binh giu nhiet cao cap|0.6|BC03|HD10
-BP11|Sac dự phong 20000mAh|0.4|BC01|HD11
-BP12|Chuot khong day Logitech|0.2|BC02|HD12
-BP13|Ban phim co RGB|0.9|BC03|HD13
-BP14|Loa bluetooth mini|0.5|BC01|HD14
-BP15|O cung SSD 1TB|0.3|BC02|HD15
+BP01|Tai nghe Bluetooth|0.5|2|HD01
+BP02|Sach lap trinh C++|1.2|5|HD02
+BP03|Laptop Gaming ROG|2.8|1|HD03
+BP04|Ao khoac mua dong|0.8|3|HD04
+BP05|Tai lieu khan cap|0.2|10|HD05
+BP06|Giay the thao Nike|1.0|2|HD06
+BP07|Dien thoai thong minh|0.4|1|HD07
+BP08|Dong ho thoi trang|0.3|4|HD08
+BP09|May anh du lich|1.5|1|HD09
+BP10|Binh giu nhiet cao cap|0.6|6|HD10
+BP11|Sac dự phong 20000mAh|0.4|3|HD11
+BP12|Chuot khong day Logitech|0.2|8|HD12
+BP13|Ban phim co RGB|0.9|2|HD13
