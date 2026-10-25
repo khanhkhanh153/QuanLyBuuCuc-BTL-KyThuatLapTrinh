@@ -84,7 +84,16 @@ public:
                 if (hd.getMaTuyen() == maHD) return true;
             }
             return false;
-            };
+        };
+
+        auto kiemTraHD_trong_BP = [&](string maHD) {
+            auto list = repoBP.getAll();
+            for (const auto& bp : list) {
+                if (bp.getMaHoaDon() == maHD) return true;
+            }
+            return false;
+        };
+
 
         auto kiemTraXoaKhachHang = [&](string maKH) {
             auto list = repoPKN.getAll();
@@ -92,7 +101,7 @@ public:
                 if (pkn.getMaKhachHang() == maKH) return true;
             }
             return false;
-            };
+        };
 
         // Khoi tao Menu
         menuBC = make_unique<BuuCucMenu>(repoBC, kiemTraBC_trong_PG);
@@ -100,7 +109,7 @@ public:
         menuLDV = make_unique<LoaiDichVuMenu>(repoLDV, kiemTraLDV_trong_BP);
         menuBP = make_unique<BuuPhamMenu>(repoBP, repoBC, repoLDV);
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
-        menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC);
+        menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC, repoLDV, kiemTraHD_trong_BP);
         menuKH = make_unique<KhachHangGuiMenu>(repoKH, kiemTraXoaKhachHang);
         menuPKN = make_unique<PhieuKhieuNaiMenu>(repoPKN, repoKH);
     }
