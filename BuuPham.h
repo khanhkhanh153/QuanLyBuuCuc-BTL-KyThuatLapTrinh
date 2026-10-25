@@ -12,7 +12,6 @@
 #include <functional>
 #include "Entity.h"
 #include "Repository.h"
-#include "BuuCuc.h"
 #include "HoaDonCuoc.h"
 
 using namespace std;
@@ -21,11 +20,11 @@ class BuuPham : public Entity {
 private:
     string tenBuuPham;
     double trongLuong;
-    string maBuuCucGui;
-    string maHoaDon; // Khóa ngoại tham chiếu sang Hóa đơn
+    int soLuong;       // Thay thế cho maBuuCucGui bằng số lượng bưu phẩm
+    string maHoaDon;   // Khóa ngoại tham chiếu sang Hóa đơn
 
 public:
-    BuuPham() : Entity(), tenBuuPham(""), trongLuong(0.0), maBuuCucGui(""), maHoaDon("") {}
+    BuuPham() : Entity(), tenBuuPham(""), trongLuong(0.0), soLuong(1), maHoaDon("") {}
 
     string getTenBuuPham() const { return tenBuuPham; }
     void setTenBuuPham(const string& ten) {
@@ -39,10 +38,10 @@ public:
         trongLuong = tl;
     }
 
-    string getMaBuuCucGui() const { return maBuuCucGui; }
-    void setMaBuuCucGui(const string& maBC) {
-        if (maBC.empty()) throw invalid_argument("Ma buu cuc gui khong duoc de trong!");
-        maBuuCucGui = maBC;
+    int getSoLuong() const { return soLuong; }
+    void setSoLuong(int sl) {
+        if (sl <= 0) throw invalid_argument("So luong phai lon hon 0!");
+        soLuong = sl;
     }
 
     string getMaHoaDon() const { return maHoaDon; }
@@ -71,18 +70,29 @@ public:
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
         }
+        while (true) {
+            try {
+                cout << "Nhap so luong: "; cin >> soLuong;
+                if (cin.fail() || soLuong <= 0) {
+                    cin.clear(); cin.ignore(10000, '\n');
+                    throw invalid_argument("So luong phai la so nguyen lon hon 0!");
+                }
+                cin.ignore(); break;
+            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+        }
     }
 
     void xuat() const override {
         cout << left << setw(8) << maID << "| " << setw(18) << tenBuuPham
-             << "| " << setw(12) << fixed << setprecision(1) << trongLuong 
-             << "| " << setw(10) << maBuuCucGui 
+             << "| " << setw(10) << fixed << setprecision(1) << trongLuong 
+             << "| " << setw(8) << soLuong 
              << "| " << setw(10) << maHoaDon << endl;
     }
 
     string toFileRecord() const override {
         stringstream ss;
-        ss << maID << "|" << tenBuuPham << "|" << trongLuong << "|" << maBuuCucGui << "|" << maHoaDon;
+        ss << maID << "|" << tenBuuPham << "|" << trongLuong << "|" << soLuong << "|" << maHoaDon;
         return ss.str();
     }
 
@@ -94,7 +104,7 @@ public:
             maID = tokens[0];
             tenBuuPham = tokens[1];
             trongLuong = stod(tokens[2]);
-            maBuuCucGui = tokens[3];
+            soLuong = stoi(tokens[3]);
             maHoaDon = tokens[4];
         }
     }
@@ -103,7 +113,6 @@ public:
 class BuuPhamMenu {
 private:
     Repository<BuuPham>& repoBP;
-    Repository<BuuCuc>& repoBC;
     Repository<HoaDonCuoc>& repoHD; 
     
     function<bool(string)> kiemTraRangBuocPhieuGui;
@@ -112,13 +121,13 @@ private:
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
         cout << left << setw(8) << "Ma BP" << "| " << setw(18) << "Ten Buu Pham"
-             << "| " << setw(12) << "Trong Luong" << "| " << setw(10) << "Ma BC" << "| " << setw(10) << "Ma HD" << endl;
-        cout << string(64, '-') << endl;
+             << "| " << setw(10) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
+        cout << string(62, '-') << endl;
     }
 
 public:
-    BuuPhamMenu(Repository<BuuPham>& bp, Repository<BuuCuc>& bc, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr) 
-        : repoBP(bp), repoBC(bc), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {}
+    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr) 
+        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {}
 
     void themMoi() {
         cout << "\n=== THEM MOI BUU PHAM ===\n";
@@ -132,19 +141,6 @@ public:
                 break;
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
-        }
-
-        while (true) {
-            try {
-                cout << "Nhap ma Buu cuc gui (VD: BC01): "; getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoBC.findById(temp) == nullptr) {
-                    throw invalid_argument("Buu cuc nay chua ton tai trong he thong!");
-                }
-                bp.setMaBuuCucGui(temp);
-                break;
-            }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
         }
 
         while (true) {
@@ -204,10 +200,10 @@ public:
         if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
 
         sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
-            return a.getTrongLuong() < b.getTrongLuong();
+            return a.getSoLuong() < b.getSoLuong();
         });
 
-        cout << "-> Da sap xep danh sach theo Trong Luong (Tang dan)!\n";
+        cout << "-> Da sap xep danh sach theo So Luong (Tang dan)!\n";
         cout << "\n============================= KET QUA SAP XEP =============================\n";
         inTieuDeBang();
         for (const auto& item : list) item.xuat();
@@ -230,21 +226,14 @@ public:
         cout << "Nhap trong luong moi [" << old->getTrongLuong() << "]: "; getline(cin, temp);
         if (!temp.empty()) newData.setTrongLuong(stod(temp));
 
-        cout << "Nhap ma buu cuc moi [" << old->getMaBuuCucGui() << "]: "; getline(cin, temp);
-        if (!temp.empty()) {
-            if (repoBC.findById(temp) == nullptr) {
-                cout << "Loi: Buu cuc khong ton tai! Giu nguyen ma cu.\n";
-            } else {
-                newData.setMaBuuCucGui(temp);
-            }
-        }
+        cout << "Nhap so luong moi [" << old->getSoLuong() << "]: "; getline(cin, temp);
+        if (!temp.empty()) newData.setSoLuong(stoi(temp));
 
         cout << "Nhap ma hoa don moi [" << old->getMaHoaDon() << "]: "; getline(cin, temp);
         if (!temp.empty()) {
             if (repoHD.findById(temp) == nullptr) {
                 cout << "Loi: Hoa don khong ton tai! Giu nguyen ma cu.\n";
             } else {
-                // Kiểm tra trùng lặp mã hóa đơn (trừ chính bưu phẩm đang cập nhật)
                 bool daDung = false;
                 for (const auto& item : repoBP.getAll()) {
                     if (item.getMaID() != id && item.getMaHoaDon() == temp) {
@@ -269,7 +258,7 @@ public:
         BuuPham* target = repoBP.findById(id);
         if (target == nullptr) { cout << "Khong tim thay ma buu pham nay!\n"; return; }
 
-        cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
+        cout << "\nThunh tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
         
         if (kiemTraRangBuocPhieuGui != nullptr && kiemTraRangBuocPhieuGui(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
@@ -295,7 +284,7 @@ public:
             cout << "1. Them buu pham moi\n";
             cout << "2. Xem danh sach\n";
             cout << "3. Tim kiem theo ma\n";
-            cout << "4. Sap xep theo Trong Luong\n";
+            cout << "4. Sap xep theo So Luong\n";
             cout << "5. Cap nhat thong tin\n";
             cout << "6. Xoa buu pham\n";
             cout << "0. Quay lai menu chinh\n";
