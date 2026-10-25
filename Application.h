@@ -54,7 +54,7 @@ public:
 
             auto listBC = repoPKN.getAll();
             for (const auto& pkn : listBC) {
-                if (pkn.getMaBuuCucGui() == maBC) 
+                if (pkn.getMaBuuCuc() == maBC) 
                     return true;
             }
             return false;
@@ -100,6 +100,10 @@ public:
             for (const auto& pkn : list) {
                 if (pkn.getMaKhachHang() == maKH) return true;
             }
+            auto listKH = repoPG.getAll();
+            for (const auto& pg : list) {
+                if (pg.getMaKhachHang() == maKH) return true;
+            }
             return false;
         };
 
@@ -111,7 +115,7 @@ public:
         menuTVC = make_unique<TuyenVanChuyenMenu>(repoTVC, kiemTraTVC_trong_HD);
         menuHD = make_unique<HoaDonCuocMenu>(repoHD, repoTVC, repoLDV, kiemTraHD_trong_BP);
         menuKH = make_unique<KhachHangGuiMenu>(repoKH, kiemTraXoaKhachHang);
-        menuPKN = make_unique<PhieuKhieuNaiMenu>(repoPKN, repoKH);
+        menuPKN = make_unique<PhieuKhieuNaiMenu>(repoPKN, repoBC, repoKH);
     }
 
     void run() {
