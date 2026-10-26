@@ -1,0 +1,10 @@
+TVC01|Ha Noi - Hai Phong|120.5|2.5
+TVC02|Ha Noi - Da Nang|760.0|14.0
+TVC03|Ha Noi - TP Ho Chi Minh|1720.8|30.0
+TVC04|Hai Phong - Quang Ninh|75.2|1.5
+TVC05|Da Nang - Nha Trang|530.0|10.0
+TVC06|TP Ho Chi Minh - Can Tho|165.4|3.5
+TVC07|Ha Noi - Thanh Hoa|160.0|3.0
+TVC08|Thanh Hoa - Nghe An|140.0|2.5
+TVC09|Da Nang - TP Ho Chi Minh|960.0|18.0
+TVC10|Ha Noi - Thai Nguyen|80.0|1.8
