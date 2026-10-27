@@ -1,10 +1,15 @@
-TVC01|Ha Noi - Hai Phong|120.5|2.5
-TVC02|Ha Noi - Da Nang|760.0|14.0
-TVC03|Ha Noi - TP Ho Chi Minh|1720.8|30.0
-TVC04|Hai Phong - Quang Ninh|75.2|1.5
-TVC05|Da Nang - Nha Trang|530.0|10.0
-TVC06|TP Ho Chi Minh - Can Tho|165.4|3.5
-TVC07|Ha Noi - Thanh Hoa|160.0|3.0
-TVC08|Thanh Hoa - Nghe An|140.0|2.5
-TVC09|Da Nang - TP Ho Chi Minh|960.0|18.0
-TVC10|Ha Noi - Thai Nguyen|80.0|1.8
+TVC01|Tuyen Ha Noi - Da Nang|760.5|14.5
+TVC02|Tuyen Ho Chi Minh - Ha Noi|1720.0|32.0
+TVC03|Tuyen Da Nang - Ho Chi Minh|960.2|18.0
+TVC04|Tuyen Cau Giay - Hai Phong|120.0|2.5
+TVC05|Tuyen Ha Dong - Quang Ninh|180.4|3.5
+TVC06|Tuyen Da Nang - Hue|100.1|2.0
+TVC07|Tuyen Ho Chi Minh - Can Tho|169.3|3.2
+TVC08|Tuyen Ha Noi - Vinh|300.0|6.0
+TVC09|Tuyen Ho Chi Minh - Nha Trang|435.0|8.5
+TVC10|Tuyen Ho Chi Minh - Da Lat|305.4|7.0
+TVC11|Tuyen Cau Giay - Nam Định|90.0|2.0
+TVC12|Tuyen Ha Dong - Ninh Binh|95.0|2.0
+TVC13|Tuyen Hoan Kiem - Hai Duong|60.0|1.5
+TVC14|Tuyen Hai Ba Trung - Bac Ninh|40.0|1.0
+TVC15|Tuyen Thu Duc - Vung Tau|95.0|2.5
