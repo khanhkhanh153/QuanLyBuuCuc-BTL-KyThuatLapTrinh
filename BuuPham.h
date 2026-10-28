@@ -12,7 +12,7 @@
 #include <functional>
 #include "Entity.h"
 #include "Repository.h"
-#include "HoaDonCuoc.h"
+#include "HoaDonCuocPhi.h"
 
 using namespace std;
 
