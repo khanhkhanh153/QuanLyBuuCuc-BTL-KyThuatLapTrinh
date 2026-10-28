@@ -93,7 +93,7 @@ class LoaiDichVuMenu {
 private:
     Repository<LoaiDichVu>& repo;
     
-    // Callback kiểm tra ràng buộc chéo (ví dụ: với Hóa đơn theo sơ đồ mới)
+    // Callback kiểm tra ràng buộc chéo 
     function<bool(string)> kiemTraRangBuocHD;
 
     void xoaManHinh() const { system("cls"); }
