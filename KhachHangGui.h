@@ -1,5 +1,4 @@
-
- //MAI DUC ANH
+//Mai Đức Anh
 #ifndef KHACHHANGGUI_H
 #define KHACHHANGGUI_H
 
@@ -10,521 +9,256 @@
 #include <iomanip>
 #include <algorithm>
 #include <stdexcept>
-#include <functional>
-#include <limits>
+#include <functional> 
 #include <cstdlib>
 #include <cctype>
-
 #include "Entity.h"
 #include "Repository.h"
 
 using namespace std;
 
-// ============================================================
-// LOP THUC THE KHACH HANG GUI
-// ============================================================
+// --- LOP THUC THE ---
 class KhachHangGui : public Entity {
 private:
     string hoTen;
     string soDienThoai;
     string diaChi;
-    string email;
 
 public:
-    KhachHangGui()
-        : Entity(), hoTen(""), soDienThoai(""),
-          diaChi(""), email("") {}
+    KhachHangGui() : Entity(), hoTen(""), soDienThoai(""), diaChi("") {}
 
-    KhachHangGui(const string& ma, const string& ten,
-                 const string& sdt, const string& dc,
-                 const string& mail)
-        : Entity(ma), hoTen(""), soDienThoai(""),
-          diaChi(""), email("") {
-        setHoTen(ten);
-        setSoDienThoai(sdt);
-        setDiaChi(dc);
-        setEmail(mail);
-    }
-
-    // ================= GETTER =================
-    string getMaKhachHang() const {
-        return maID;
-    }
-
-    string getHoTen() const {
-        return hoTen;
-    }
-
-    string getSoDienThoai() const {
-        return soDienThoai;
-    }
-
-    string getDiaChi() const {
-        return diaChi;
-    }
-
-    string getEmail() const {
-        return email;
-    }
-
-    // ================= SETTER =================
+    string getHoTen() const { return hoTen; }
     void setHoTen(const string& ten) {
-        if (ten.empty()) {
-            throw invalid_argument(
-                "Ho ten khong duoc de trong!"
-            );
-        }
+        if (ten.empty()) throw invalid_argument("Ho ten khong duoc de trong!");
 
-        // Kiem tra ten:
-        // - Cho phep chu cai ASCII.
-        // - Cho phep khoang trang.
-        // - Cho phep byte UTF-8 de ho tro tieng Viet co dau.
-        // - Khong cho phep chu so va ky tu dac biet ASCII.
-
-        bool coChuCai = false;
-
+        // Kiem tra ten: chi duoc chua chu cai va khoang trang
         for (unsigned char c : ten) {
-            if (c < 128) {
-                if (isalpha(c)) {
-                    coChuCai = true;
-                }
-                else if (isspace(c)) {
-                    // Cho phep khoang trang.
-                }
-                else {
-                    throw invalid_argument(
-                        "Ho ten khong duoc chua so "
-                        "hoac ky tu dac biet!"
-                    );
-                }
-            }
-            else {
-                // Chap nhan byte UTF-8 cua chu co dau.
-                coChuCai = true;
+            if (!isalpha(c) && !isspace(c)) {
+                throw invalid_argument("Ho ten khong duoc chua chu so hoac ky tu dac biet!");
             }
         }
-
-        if (!coChuCai) {
-            throw invalid_argument(
-                "Ho ten phai co chu cai!"
-            );
-        }
-
         hoTen = ten;
     }
 
+    string getSoDienThoai() const { return soDienThoai; }
     void setSoDienThoai(const string& sdt) {
-        if (sdt.empty()) {
-            throw invalid_argument(
-                "So dien thoai khong duoc de trong!"
-            );
-        }
+        if (sdt.empty()) throw invalid_argument("So dien thoai khong duoc de trong!");
 
-        // Chi cho phep cac chu so tu 0 den 9.
+        // Kiem tra sdt: chi duoc chua chu so
         for (unsigned char c : sdt) {
             if (!isdigit(c)) {
-                throw invalid_argument(
-                    "So dien thoai chi duoc chua "
-                    "chu so tu 0 den 9!"
-                );
+                throw invalid_argument("So dien thoai khong duoc chua chu cai hoac ky tu dac biet!");
             }
         }
-
         soDienThoai = sdt;
     }
 
+    string getDiaChi() const { return diaChi; }
     void setDiaChi(const string& dc) {
-        if (dc.empty()) {
-            throw invalid_argument(
-                "Dia chi khong duoc de trong!"
-            );
-        }
-
+        if (dc.empty()) throw invalid_argument("Dia chi khong duoc de trong!");
         diaChi = dc;
     }
 
-    void setEmail(const string& mail) {
-        if (mail.empty()) {
-            throw invalid_argument(
-                "Email khong duoc de trong!"
-            );
-        }
-
-        email = mail;
-    }
-
-    // ================= NHAP THONG TIN =================
     void nhap() override {
         string temp;
-
-        // Nhap ma khach hang
         while (true) {
             try {
-                cout << "Nhap ma khach hang (VD: KH001): ";
-                getline(cin >> ws, temp);
-
-                setMaID(temp);
-                break;
+                cout << "Nhap ho ten khach hang: "; getline(cin, temp);
+                setHoTen(temp); break;
             }
-            catch (const exception& e) {
-                cout << "Loi: " << e.what()
-                     << " Vui long nhap lai.\n";
-            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
         }
-
-        // Nhap ho ten
         while (true) {
             try {
-                cout << "Nhap ho ten: ";
-                getline(cin, temp);
-
-                setHoTen(temp);
-                break;
+                cout << "Nhap so dien thoai: "; getline(cin, temp);
+                setSoDienThoai(temp); break;
             }
-            catch (const exception& e) {
-                cout << "Loi: " << e.what()
-                     << " Vui long nhap lai.\n";
-            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
         }
-
-        // Nhap so dien thoai
         while (true) {
             try {
-                cout << "Nhap so dien thoai: ";
-                getline(cin, temp);
-
-                setSoDienThoai(temp);
-                break;
+                cout << "Nhap dia chi: "; getline(cin, temp);
+                setDiaChi(temp); break;
             }
-            catch (const exception& e) {
-                cout << "Loi: " << e.what()
-                     << " Vui long nhap lai.\n";
-            }
-        }
-
-        // Nhap dia chi
-        while (true) {
-            try {
-                cout << "Nhap dia chi: ";
-                getline(cin, temp);
-
-                setDiaChi(temp);
-                break;
-            }
-            catch (const exception& e) {
-                cout << "Loi: " << e.what()
-                     << " Vui long nhap lai.\n";
-            }
-        }
-
-        // Nhap email
-        while (true) {
-            try {
-                cout << "Nhap email: ";
-                getline(cin, temp);
-
-                setEmail(temp);
-                break;
-            }
-            catch (const exception& e) {
-                cout << "Loi: " << e.what()
-                     << " Vui long nhap lai.\n";
-            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
         }
     }
 
-    // ================= XUAT THONG TIN =================
     void xuat() const override {
-        cout << left << setw(12) << maID
-             << "| " << setw(25) << hoTen
-             << "| " << setw(16) << soDienThoai
-             << "| " << setw(28) << diaChi
-             << "| " << email << '\n';
+        cout << left << setw(10) << maID << "| " << setw(25) << hoTen
+            << "| " << setw(15) << soDienThoai << "| " << setw(30) << diaChi << endl;
     }
 
-    // ================= GHI FILE =================
     string toFileRecord() const override {
         stringstream ss;
-
-        ss << maID << '|'
-           << hoTen << '|'
-           << soDienThoai << '|'
-           << diaChi << '|'
-           << email;
-
+        ss << maID << "|" << hoTen << "|" << soDienThoai << "|" << diaChi;
         return ss.str();
     }
 
-    // ================= DOC FILE =================
     void fromFileRecord(const string& record) override {
         stringstream ss(record);
-        vector<string> tokens;
-        string item;
-
-        while (getline(ss, item, '|')) {
-            tokens.push_back(item);
+        string item; vector<string> tokens;
+        while (getline(ss, item, '|')) tokens.push_back(item);
+        if (tokens.size() == 4) {
+            maID = tokens[0]; hoTen = tokens[1];
+            soDienThoai = tokens[2]; diaChi = tokens[3];
         }
-
-        if (tokens.size() != 5 || tokens[0].empty()) {
-            throw invalid_argument(
-                "Du lieu khach hang khong dung dinh dang!"
-            );
-        }
-
-        // Gan thong tin thong qua setter de kiem tra du lieu.
-        setMaID(tokens[0]);
-        setHoTen(tokens[1]);
-        setSoDienThoai(tokens[2]);
-        setDiaChi(tokens[3]);
-        setEmail(tokens[4]);
     }
 };
 
-// ============================================================
-// LOP GIAO DIEN VA QUAN LY MENU KHACH HANG GUI
-// ============================================================
+// --- LOP GIAO DIEN (MENU) ---
 class KhachHangGuiMenu {
 private:
-    Repository<KhachHangGui>& repoKH;
-    function<bool(string)> kiemTraDangDuocThamChieu;
+    Repository<KhachHangGui>& repo;
+    function<bool(string)> kiemTraRangBuocPhieu; // Lambda kiem tra xoa
 
-    void xoaManHinh() const {
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
-    }
-
-    void tamDung() const {
-        cout << "\nNhan Enter de tiep tuc...";
-        cin.get();
-    }
-
+    void xoaManHinh() const { system("cls"); }
+    void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
-        cout << left << setw(12) << "Ma KH"
-             << "| " << setw(25) << "Ho Ten"
-             << "| " << setw(16) << "So Dien Thoai"
-             << "| " << setw(28) << "Dia Chi"
-             << "| Email\n";
-
-        cout << string(105, '-') << '\n';
+        cout << left << setw(10) << "Ma KH" << "| " << setw(25) << "Ho Ten"
+            << "| " << setw(15) << "So Dien Thoai" << "| " << setw(30) << "Dia Chi" << endl;
+        cout << string(85, '-') << endl;
     }
 
 public:
-    explicit KhachHangGuiMenu(
-        Repository<KhachHangGui>& repository,
-        function<bool(string)> checkThamChieu = nullptr
-    )
-        : repoKH(repository),
-          kiemTraDangDuocThamChieu(checkThamChieu) {}
+    KhachHangGuiMenu(Repository<KhachHangGui>& r, function<bool(string)> kiemTra = nullptr)
+        : repo(r), kiemTraRangBuocPhieu(kiemTra) {
+    }
 
-    // ================= THEM KHACH HANG =================
     void themMoi() {
         cout << "\n=== THEM MOI KHACH HANG GUI ===\n";
-
-        KhachHangGui kh;
-        kh.nhap();
-
-        try {
-            repoKH.add(kh);
-            cout << "-> Them khach hang thanh cong!\n";
-        }
-        catch (const exception& e) {
-            cout << "-> Khong the them khach hang: "
-                 << e.what() << '\n';
-        }
-    }
-
-    // ================= XEM DANH SACH =================
-    void xemDanhSach() const {
-        const auto danhSach = repoKH.getAll();
-
-        if (danhSach.empty()) {
-            cout << "\nDanh sach khach hang gui trong!\n";
-            return;
-        }
-
-        cout << "\n========================= DANH SACH KHACH HANG GUI =========================\n";
-
-        inTieuDeBang();
-
-        for (const auto& kh : danhSach) {
-            kh.xuat();
-        }
-
-        cout << "Tong so khach hang: "
-             << danhSach.size() << '\n';
-    }
-
-    // ================= TIM KIEM =================
-    void timKiem() {
-        string ma;
-
-        cout << "Nhap ma khach hang can tim: ";
-        getline(cin >> ws, ma);
-
-        KhachHangGui* kh = repoKH.findById(ma);
-
-        if (kh != nullptr) {
-            cout << "\nDa tim thay khach hang:\n";
-            inTieuDeBang();
-            kh->xuat();
-        }
-        else {
-            cout << "Khong tim thay khach hang co ma: "
-                 << ma << '\n';
-        }
-    }
-
-    // ================= CAP NHAT =================
-    void capNhat() {
-        string ma;
-
-        cout << "Nhap ma khach hang can cap nhat: ";
-        getline(cin >> ws, ma);
-
-        KhachHangGui* cu = repoKH.findById(ma);
-
-        if (cu == nullptr) {
-            cout << "Khong tim thay ma khach hang nay!\n";
-            return;
-        }
-
-        cout << "\nThong tin hien tai:\n";
-        inTieuDeBang();
-        cu->xuat();
-
-        cout << "Nhap thong tin moi cho khach hang "
-             << "(ma KH giu nguyen: " << ma << ")\n";
-
-        KhachHangGui moi;
-        moi.nhap();
-
-        // Giu nguyen ma khach hang cu.
-        moi.setMaID(ma);
-
-        if (repoKH.update(ma, moi)) {
-            cout << "-> Cap nhat khach hang thanh cong!\n";
-        }
-        else {
-            cout << "-> Cap nhat that bai!\n";
-        }
-    }
-
-    // ================= XOA KHACH HANG =================
-    void xoa() {
-        string ma;
-
-        cout << "Nhap ma khach hang can xoa: ";
-        getline(cin >> ws, ma);
-
-        KhachHangGui* kh = repoKH.findById(ma);
-
-        if (kh == nullptr) {
-            cout << "Khong tim thay ma khach hang nay!\n";
-            return;
-        }
-
-        // Kiem tra khach hang co dang duoc tham chieu hay khong.
-        // Callback can kiem tra ca Phieu Gui va Phieu Khieu Nai.
-        if (kiemTraDangDuocThamChieu &&
-            kiemTraDangDuocThamChieu(ma)) {
-
-            cout << "-> KHONG THE XOA! Khach hang ma ["
-                 << ma
-                 << "] dang duoc tham chieu trong "
-                 << "Phieu Gui hoac Phieu Khieu Nai.\n";
-            return;
-        }
-
-        cout << "\nThong tin chuan bi xoa:\n";
-        inTieuDeBang();
-        kh->xuat();
-
-        cout << "Ban co chac chan muon xoa khong? (y/n): ";
-
-        char xacNhan;
-        cin >> xacNhan;
-
-        cin.ignore(
-            numeric_limits<streamsize>::max(), '\n'
-        );
-
-        if (xacNhan == 'y' || xacNhan == 'Y') {
-            if (repoKH.removeById(ma)) {
-                cout << "-> Xoa khach hang thanh cong!\n";
-            }
-            else {
-                cout << "-> Xoa khach hang that bai!\n";
-            }
-        }
-        else {
-            cout << "Huy thao tac xoa.\n";
-        }
-    }
-
-    // ================= MENU KHACH HANG =================
-    void menu() {
-        int choice = -1;
-
-        do {
-            cout << "\n========== QUAN LY KHACH HANG GUI ==========\n"
-                 << "1. Them khach hang moi\n"
-                 << "2. Xem danh sach khach hang\n"
-                 << "3. Tim kiem khach hang theo ma\n"
-                 << "4. Cap nhat thong tin khach hang\n"
-                 << "5. Xoa khach hang\n"
-                 << "0. Quay lai menu chinh\n"
-                 << "============================================\n"
-                 << "Lua chon cua ban: ";
-
-            if (!(cin >> choice)) {
-                cin.clear();
-
-                cin.ignore(
-                    numeric_limits<streamsize>::max(), '\n'
-                );
-
-                cout << "Lua chon khong hop le!\n";
-                continue;
-            }
-
-            cin.ignore(
-                numeric_limits<streamsize>::max(), '\n'
-            );
-
-            if (choice == 0) {
+        KhachHangGui kh; string id;
+        while (true) {
+            try {
+                cout << "Nhap ma khach hang (VD: KH01): "; getline(cin, id);
+                kh.setMaID(id);
+                if (repo.findById(id) != nullptr) throw invalid_argument("Ma khach hang da ton tai!");
                 break;
             }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
+        }
+        kh.nhap(); repo.add(kh);
+        cout << "-> Them moi thanh cong!\n";
+    }
 
-            switch (choice) {
-                case 1:
-                    themMoi();
-                    break;
+    void xemDanhSach() const {
+        auto list = repo.getAll();
+        if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
+        cout << "\n=========================== DANH SACH KHACH HANG ===========================\n";
+        inTieuDeBang();
+        for (const auto& item : list) item.xuat();
+        cout << "Tong so khach hang: " << list.size() << endl;
+    }
 
-                case 2:
-                    xemDanhSach();
-                    break;
+    void timKiem() const {
+        string id; cout << "Nhap ma khach hang can tim: "; getline(cin, id);
+        KhachHangGui* result = repo.findById(id);
+        if (result != nullptr) {
+            cout << "\nDa tim thay thong tin:\n"; inTieuDeBang(); result->xuat();
+        }
+        else cout << "Khong tim thay khach hang ma: " << id << "\n";
+    }
 
-                case 3:
-                    timKiem();
-                    break;
+    void sapXep() {
+        auto list = repo.getAll();
+        if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
+        sort(list.begin(), list.end(), [](const KhachHangGui& a, const KhachHangGui& b) {
+            return a.getHoTen() < b.getHoTen();
+            });
+        cout << "-> Da sap xep danh sach theo Ho Ten (A-Z)!\n\n";
+        inTieuDeBang();
+        for (const auto& item : list) item.xuat();
+    }
 
-                case 4:
-                    capNhat();
-                    break;
+    void capNhat() {
+        string id; cout << "Nhap ma khach hang can cap nhat: "; getline(cin, id);
+        KhachHangGui* old = repo.findById(id);
+        if (old == nullptr) { cout << "Khong tim thay ma nay!\n"; return; }
 
-                case 5:
-                    xoa();
-                    break;
+        cout << "\nThong tin hien tai:\n"; inTieuDeBang(); old->xuat();
+        cout << "\n(Luu y: De trong neu muon giu nguyen gia tri cu)\n";
 
-                default:
-                    cout << "Vui long chon tu 0 den 5!\n";
+        KhachHangGui newData = *old;
+        string temp;
+
+        while (true) {
+            try {
+                cout << "Nhap ho ten moi [" << old->getHoTen() << "]: "; getline(cin, temp);
+                if (temp.empty()) break;
+                newData.setHoTen(temp);
+                break;
             }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
+        }
 
+        while (true) {
+            try {
+                cout << "Nhap so dien thoai moi [" << old->getSoDienThoai() << "]: "; getline(cin, temp);
+                if (temp.empty()) break;
+                newData.setSoDienThoai(temp);
+                break;
+            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
+        }
+
+        while (true) {
+            try {
+                cout << "Nhap dia chi moi [" << old->getDiaChi() << "]: "; getline(cin, temp);
+                if (temp.empty()) break;
+                newData.setDiaChi(temp);
+                break;
+            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
+        }
+
+        if (repo.update(id, newData)) cout << "-> Cap nhat thanh cong!\n";
+        else cout << "Loi khi cap nhat!\n";
+    }
+
+    void xoa() {
+        string id; cout << "Nhap ma khach hang can xoa: "; getline(cin, id);
+        KhachHangGui* target = repo.findById(id);
+        if (target == nullptr) { cout << "Khong tim thay ma nay!\n"; return; }
+
+        cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
+
+        // KIEM TRA RANG BUOC VOI PHIEU KHIEU NAI / PHIEU GUI
+        if (kiemTraRangBuocPhieu != nullptr && kiemTraRangBuocPhieu(id)) {
+            cout << "\n[LOI] KHONG THE XOA!\n";
+            cout << "-> Khach hang nay dang co Phieu Khieu Nai hoac Phieu Gui hoat dong.\n";
+            return;
+        }
+
+        cout << "Ban co chac chan muon xoa khong? (y/n): ";
+        char confirm; cin >> confirm; cin.ignore(10000, '\n');
+        if (confirm == 'y' || confirm == 'Y') {
+            if (repo.removeById(id)) cout << "-> Xoa thanh cong!\n";
+        }
+        else cout << "Huy thao tac xoa.\n";
+    }
+
+    void menu() {
+        int choice = -1;
+        do {
+            xoaManHinh();
+            cout << "========== QUAN LY KHACH HANG ==========\n";
+            cout << "1. Them khach hang moi\n2. Xem danh sach\n3. Tim kiem\n4. Sap xep theo Ho Ten\n5. Cap nhat\n6. Xoa\n0. Quay lai menu\n";
+            cout << "========================================\nChon: ";
+            if (!(cin >> choice)) { cin.clear(); choice = -1; }
+            cin.ignore(10000, '\n');
+            if (choice == 0) break;
+
+            xoaManHinh();
+            switch (choice) {
+            case 1: themMoi(); break;
+            case 2: xemDanhSach(); break;
+            case 3: timKiem(); break;
+            case 4: sapXep(); break;
+            case 5: capNhat(); break;
+            case 6: xoa(); break;
+            default: cout << "Lua chon sai!\n";
+            }
             tamDung();
-
         } while (choice != 0);
     }
 };
