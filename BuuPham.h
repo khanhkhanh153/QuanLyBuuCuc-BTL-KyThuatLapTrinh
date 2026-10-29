@@ -93,9 +93,9 @@ public:
 
     void xuat() const override {
         cout << left << setw(10) << maID << "| " << setw(35) << tenBuuPham
-             << "| " << setw(18) << fixed << setprecision(1) << trongLuong 
-             << "| " << setw(8) << soLuong 
-             << "| " << setw(10) << maHoaDon << endl;
+            << "| " << setw(18) << fixed << setprecision(1) << trongLuong
+            << "| " << setw(8) << soLuong
+            << "| " << setw(10) << maHoaDon << endl;
     }
 
     string toFileRecord() const override {
@@ -121,21 +121,22 @@ public:
 class BuuPhamMenu {
 private:
     Repository<BuuPham>& repoBP;
-    Repository<HoaDonCuoc>& repoHD; 
-    
+    Repository<HoaDonCuoc>& repoHD;
+
     function<bool(string)> kiemTraRangBuocPhieuGui;
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
         cout << left << setw(10) << "Ma BP" << "| " << setw(35) << "Ten Buu Pham"
-             << "| " << setw(18) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
+            << "| " << setw(18) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
         cout << string(80, '-') << endl;
     }
 
 public:
-    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr) 
-        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {}
+    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr)
+        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {
+    }
 
     void themMoi() {
         cout << "\n=== THEM MOI BUU PHAM ===\n";
@@ -155,7 +156,7 @@ public:
             try {
                 cout << "Nhap ma Hoa don cuoc (VD: HD01): "; getline(cin, temp);
                 if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                
+
                 // 1. Kiểm tra xem hóa đơn có tồn tại trong hệ thống hay không
                 if (repoHD.findById(temp) == nullptr) {
                     throw invalid_argument("Hoa don nay chua ton tai trong he thong!");
@@ -198,7 +199,8 @@ public:
         BuuPham* result = repoBP.findById(id);
         if (result != nullptr) {
             cout << "\nDa tim thay thong tin:\n"; inTieuDeBang(); result->xuat();
-        } else {
+        }
+        else {
             cout << "Khong tim thay buu pham co ma: " << id << "\n";
         }
     }
@@ -209,7 +211,7 @@ public:
 
         sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
             return a.getSoLuong() < b.getSoLuong();
-        });
+            });
 
         cout << "-> Da sap xep danh sach theo So Luong (Tang dan)!\n";
         cout << "\n============================= KET QUA SAP XEP =============================\n";
@@ -241,7 +243,8 @@ public:
         if (!temp.empty()) {
             if (repoHD.findById(temp) == nullptr) {
                 cout << "Loi: Hoa don khong ton tai! Giu nguyen ma cu.\n";
-            } else {
+            }
+            else {
                 bool daDung = false;
                 for (const auto& item : repoBP.getAll()) {
                     if (item.getMaID() != id && item.getMaHoaDon() == temp) {
@@ -251,7 +254,8 @@ public:
                 }
                 if (daDung) {
                     cout << "Loi: Ma hoa don nay da duoc su dung cho buu pham khac! Giu nguyen ma cu.\n";
-                } else {
+                }
+                else {
                     newData.setMaHoaDon(temp);
                 }
             }
@@ -267,7 +271,7 @@ public:
         if (target == nullptr) { cout << "Khong tim thay ma buu pham nay!\n"; return; }
 
         cout << "\nThunh tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
-        
+
         if (kiemTraRangBuocPhieuGui != nullptr && kiemTraRangBuocPhieuGui(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
             cout << "-> Buu pham nay dang duoc tham chieu trong Phieu gui.\n";
@@ -279,7 +283,8 @@ public:
 
         if (confirm == 'y' || confirm == 'Y') {
             if (repoBP.removeById(id)) cout << "-> Xoa thanh cong!\n";
-        } else {
+        }
+        else {
             cout << "Huy thao tac xoa.\n";
         }
     }
@@ -323,7 +328,7 @@ public:
 #include <functional>
 #include "Entity.h"
 #include "Repository.h"
-#include "HoaDonCuocPhi.h"
+#include "HoaDonCuoc.h"
 
 using namespace std;
 
@@ -395,10 +400,10 @@ public:
     }
 
     void xuat() const override {
-        cout << left << setw(8) << maID << "| " << setw(18) << tenBuuPham
-             << "| " << setw(10) << fixed << setprecision(1) << trongLuong 
-             << "| " << setw(8) << soLuong 
-             << "| " << setw(10) << maHoaDon << endl;
+        cout << left << setw(8) << maID << "| " << setw(30) << tenBuuPham
+            << "| " << setw(15) << fixed << setprecision(1) << trongLuong
+            << "| " << setw(8) << soLuong
+            << "| " << setw(10) << maHoaDon << endl;
     }
 
     string toFileRecord() const override {
@@ -424,21 +429,22 @@ public:
 class BuuPhamMenu {
 private:
     Repository<BuuPham>& repoBP;
-    Repository<HoaDonCuoc>& repoHD; 
-    
+    Repository<HoaDonCuoc>& repoHD;
+
     function<bool(string)> kiemTraRangBuocPhieuGui;
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
-        cout << left << setw(8) << "Ma BP" << "| " << setw(18) << "Ten Buu Pham"
-             << "| " << setw(10) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
-        cout << string(62, '-') << endl;
+        cout << left << setw(8) << "Ma BP" << "| " << setw(30) << "Ten Buu Pham"
+            << "| " << setw(15) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
+        cout << string(78, '-') << endl;
     }
 
 public:
-    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr) 
-        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {}
+    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr)
+        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {
+    }
 
     void themMoi() {
         cout << "\n=== THEM MOI BUU PHAM ===\n";
@@ -458,7 +464,7 @@ public:
             try {
                 cout << "Nhap ma Hoa don cuoc (VD: HD01): "; getline(cin, temp);
                 if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                
+
                 // 1. Kiểm tra xem hóa đơn có tồn tại trong hệ thống hay không
                 if (repoHD.findById(temp) == nullptr) {
                     throw invalid_argument("Hoa don nay chua ton tai trong he thong!");
@@ -501,7 +507,8 @@ public:
         BuuPham* result = repoBP.findById(id);
         if (result != nullptr) {
             cout << "\nDa tim thay thong tin:\n"; inTieuDeBang(); result->xuat();
-        } else {
+        }
+        else {
             cout << "Khong tim thay buu pham co ma: " << id << "\n";
         }
     }
@@ -512,7 +519,7 @@ public:
 
         sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
             return a.getSoLuong() < b.getSoLuong();
-        });
+            });
 
         cout << "-> Da sap xep danh sach theo So Luong (Tang dan)!\n";
         cout << "\n============================= KET QUA SAP XEP =============================\n";
@@ -544,7 +551,8 @@ public:
         if (!temp.empty()) {
             if (repoHD.findById(temp) == nullptr) {
                 cout << "Loi: Hoa don khong ton tai! Giu nguyen ma cu.\n";
-            } else {
+            }
+            else {
                 bool daDung = false;
                 for (const auto& item : repoBP.getAll()) {
                     if (item.getMaID() != id && item.getMaHoaDon() == temp) {
@@ -554,7 +562,8 @@ public:
                 }
                 if (daDung) {
                     cout << "Loi: Ma hoa don nay da duoc su dung cho buu pham khac! Giu nguyen ma cu.\n";
-                } else {
+                }
+                else {
                     newData.setMaHoaDon(temp);
                 }
             }
@@ -570,7 +579,7 @@ public:
         if (target == nullptr) { cout << "Khong tim thay ma buu pham nay!\n"; return; }
 
         cout << "\nThunh tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
-        
+
         if (kiemTraRangBuocPhieuGui != nullptr && kiemTraRangBuocPhieuGui(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
             cout << "-> Buu pham nay dang duoc tham chiếu trong Phieu gui.\n";
@@ -582,7 +591,8 @@ public:
 
         if (confirm == 'y' || confirm == 'Y') {
             if (repoBP.removeById(id)) cout << "-> Xoa thanh cong!\n";
-        } else {
+        }
+        else {
             cout << "Huy thao tac xoa.\n";
         }
     }
