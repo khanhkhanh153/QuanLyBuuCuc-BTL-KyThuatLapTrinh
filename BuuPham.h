@@ -1,6 +1,6 @@
 // Nguyễn Như Khánh
-#ifndef LOAIDICHVU_H
-#define LOAIDICHVU_H
+#ifndef BUUPHAM_H
+#define BUUPHAM_H
 
 #include <iostream>
 #include <string>
@@ -13,67 +13,87 @@
 #include <regex>
 #include "Entity.h"
 #include "Repository.h"
+#include "HoaDonCuoc.h"
 
 using namespace std;
 
-class LoaiDichVu : public Entity {
+class BuuPham : public Entity {
 private:
-    string tenDichVu;
-    double phuPhi;
-    string moTa;
+    string tenBuuPham;
+    double trongLuong;
+    int soLuong;       // Thay thế cho maBuuCucGui bằng số lượng bưu phẩm
+    string maHoaDon;   // Khóa ngoại tham chiếu sang Hóa đơn
 
 public:
-    LoaiDichVu() : Entity(), tenDichVu(""), phuPhi(0.0), moTa("") {}
+    BuuPham() : Entity(), tenBuuPham(""), trongLuong(0.0), soLuong(1), maHoaDon("") {}
 
-    string getTenDichVu() const { return tenDichVu; }
-    void setTenDichVu(const string& ten) {
-        if (ten.empty()) throw invalid_argument("Ten dich vu khong duoc de trong!");
-        tenDichVu = ten;
+    string getTenBuuPham() const { return tenBuuPham; }
+    void setTenBuuPham(const string& ten) {
+        if (ten.empty()) throw invalid_argument("Ten buu pham khong duoc de trong!");
+        tenBuuPham = ten;
     }
 
-    double getPhuPhi() const { return phuPhi; }
-    void setPhuPhi(double pp) {
-        if (pp < 0) throw invalid_argument("Phu phi khong duoc am!");
-        phuPhi = pp;
+    double getTrongLuong() const { return trongLuong; }
+    void setTrongLuong(double tl) {
+        if (tl <= 0) throw invalid_argument("Trong luong phai lon hon 0!");
+        trongLuong = tl;
     }
 
-    string getMoTa() const { return moTa; }
-    void setMoTa(const string& mt) {
-        moTa = mt;
+    int getSoLuong() const { return soLuong; }
+    void setSoLuong(int sl) {
+        if (sl <= 0) throw invalid_argument("So luong phai lon hon 0!");
+        soLuong = sl;
+    }
+
+    string getMaHoaDon() const { return maHoaDon; }
+    void setMaHoaDon(const string& maHD) {
+        if (maHD.empty()) throw invalid_argument("Ma hoa don khong duoc de trong!");
+        maHoaDon = maHD;
     }
 
     void nhap() override {
         string temp;
         while (true) {
             try {
-                cout << "Nhap ten loai dich vu: "; getline(cin, temp);
-                setTenDichVu(temp); break;
+                cout << "Nhap ten buu pham: "; getline(cin, temp);
+                setTenBuuPham(temp); break;
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
         }
         while (true) {
             try {
-                cout << "Nhap muc phu phi (VND): "; cin >> phuPhi;
-                if (cin.fail() || phuPhi < 0) {
+                cout << "Nhap trong luong (kg): "; cin >> trongLuong;
+                if (cin.fail() || trongLuong <= 0) {
                     cin.clear(); cin.ignore(10000, '\n');
-                    throw invalid_argument("Phu phi phai la so khong am!");
+                    throw invalid_argument("Trong luong phai la so thuc lon hon 0!");
                 }
                 cin.ignore(); break;
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
         }
-        cout << "Nhap mo ta dich vu: "; getline(cin, moTa);
+        while (true) {
+            try {
+                cout << "Nhap so luong: "; cin >> soLuong;
+                if (cin.fail() || soLuong <= 0) {
+                    cin.clear(); cin.ignore(10000, '\n');
+                    throw invalid_argument("So luong phai la so nguyen lon hon 0!");
+                }
+                cin.ignore(); break;
+            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+        }
     }
 
     void xuat() const override {
-        cout << left << setw(10) << maID << "| " << setw(25) << tenDichVu
-            << "| " << setw(15) << fixed << setprecision(0) << phuPhi
-            << "| " << setw(25) << moTa << endl;
+        cout << left << setw(10) << maID << "| " << setw(30) << tenBuuPham
+            << "| " << setw(18) << fixed << setprecision(1) << trongLuong
+            << "| " << setw(8) << soLuong
+            << "| " << setw(10) << maHoaDon << endl;
     }
 
     string toFileRecord() const override {
         stringstream ss;
-        ss << maID << "|" << tenDichVu << "|" << phuPhi << "|" << moTa;
+        ss << maID << "|" << tenBuuPham << "|" << trongLuong << "|" << soLuong << "|" << maHoaDon;
         return ss.str();
     }
 
@@ -81,137 +101,191 @@ public:
         stringstream ss(record);
         string item; vector<string> tokens;
         while (getline(ss, item, '|')) tokens.push_back(item);
-        if (tokens.size() >= 3) {
+        if (tokens.size() >= 5) {
             maID = tokens[0];
-            tenDichVu = tokens[1];
-            phuPhi = stod(tokens[2]);
-            if (tokens.size() >= 4) moTa = tokens[3];
+            tenBuuPham = tokens[1];
+            trongLuong = stod(tokens[2]);
+            soLuong = stoi(tokens[3]);
+            maHoaDon = tokens[4];
         }
     }
 };
 
-class LoaiDichVuMenu {
+class BuuPhamMenu {
 private:
-    Repository<LoaiDichVu>& repo;
+    Repository<BuuPham>& repoBP;
+    Repository<HoaDonCuoc>& repoHD;
 
-    // Callback kiểm tra ràng buộc chéo
-    function<bool(string)> kiemTraRangBuocHD;
+    function<bool(string)> kiemTraRangBuocPhieuGui;
 
     void xoaManHinh() const { system("cls"); }
     void tamDung() const { cout << "\nNhan Enter de tiep tuc..."; cin.get(); }
     void inTieuDeBang() const {
-        cout << left << setw(10) << "Ma DV" << "| " << setw(25) << "Ten Loai Dich Vu"
-            << "| " << setw(15) << "Phu Phi" << "| " << setw(25) << "Mo Ta" << endl;
-        cout << string(73, '-') << endl;
+        cout << left << setw(10) << "Ma BP" << "| " << setw(30) << "Ten Buu Pham"
+            << "| " << setw(18) << "Trong Luong" << "| " << setw(8) << "So Luong" << "| " << setw(10) << "Ma HD" << endl;
+        cout << string(80, '-') << endl;
     }
 
-    // Hàm kiểm tra định dạng mã loại dịch vụ: Bắt buộc "DV" theo sau đúng 2 chữ số (VD: DV01, DV14)
-    bool isValidMaLoaiDichVu(const string& ma) const {
-        regex pattern("^DV[0-9]{2}$");
+    // Hàm kiểm tra định dạng mã bưu phẩm: Bắt buộc 2 chữ cái in hoa theo sau là các chữ số (VD: BP01)
+    bool isValidMaBuuPham(const string& ma) const {
+        regex pattern("^[A-Z]{2}[0-9]+$");
         return regex_match(ma, pattern);
     }
 
 public:
-    LoaiDichVuMenu(Repository<LoaiDichVu>& r, function<bool(string)> kiemTra = nullptr)
-        : repo(r), kiemTraRangBuocHD(kiemTra) {
+    BuuPhamMenu(Repository<BuuPham>& bp, Repository<HoaDonCuoc>& hd, function<bool(string)> kiemTraPG = nullptr)
+        : repoBP(bp), repoHD(hd), kiemTraRangBuocPhieuGui(kiemTraPG) {
     }
 
     void themMoi() {
-        cout << "\n=== THEM MOI LOAI DICH VU ===\n";
-        LoaiDichVu dv; string id;
+        cout << "\n=== THEM MOI BUU PHAM ===\n";
+        BuuPham bp; string temp;
+
         while (true) {
             try {
-                cout << "Nhap ma loai dich vu (VD: DV01, DV14): "; getline(cin, id);
+                cout << "Nhap ma buu pham (VD: BP01): "; getline(cin, temp);
                 
-                if (id.empty()) {
-                    throw invalid_argument("Ma loai dich vu khong duoc de trong!");
+                if (temp.empty()) {
+                    throw invalid_argument("Ma buu pham khong duoc de trong!");
                 }
 
-                // Kiểm tra định dạng bắt buộc DV theo sau 2 chữ số
-                if (!isValidMaLoaiDichVu(id)) {
-                    throw invalid_argument("Sai dinh dang! Ma loai dich vu phai co dang DV theo sau 2 chu so (VD: DV01, DV14).");
+                // Kiểm tra định dạng bắt buộc chữ in hoa
+                if (!isValidMaBuuPham(temp)) {
+                    throw invalid_argument("Sai dinh dang! Ma buu pham phai co 2 chu cai in hoa dau va theo sau la chu so (VD: BP01).");
                 }
 
-                dv.setMaID(id);
-                if (repo.findById(id) != nullptr) throw invalid_argument("Ma loai dich vu da ton tai!");
+                bp.setMaID(temp);
+                if (repoBP.findById(temp) != nullptr) {
+                    throw invalid_argument("Ma buu pham da ton tai trong he thong!");
+                }
                 break;
             }
             catch (const exception& e) { cout << "Loi: " << e.what() << " Vui long nhap lai.\n"; }
         }
-        dv.nhap();
-        repo.add(dv);
-        cout << "-> Them moi loai dich vu thanh cong!\n";
+
+        while (true) {
+            try {
+                cout << "Nhap ma Hoa don cuoc (VD: HD01): "; getline(cin, temp);
+                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
+
+                // 1. Kiểm tra xem hóa đơn có tồn tại trong hệ thống hay không
+                if (repoHD.findById(temp) == nullptr) {
+                    throw invalid_argument("Hoa don nay chua ton tai trong he thong!");
+                }
+
+                // 2. Kiểm tra xem mã hóa đơn này đã được gán cho bưu phẩm nào khác chưa
+                bool daDung = false;
+                for (const auto& item : repoBP.getAll()) {
+                    if (item.getMaHoaDon() == temp) {
+                        daDung = true;
+                        break;
+                    }
+                }
+                if (daDung) {
+                    throw invalid_argument("Ma hoa don nay da duoc su dung cho mot buu pham khac!");
+                }
+
+                bp.setMaHoaDon(temp);
+                break;
+            }
+            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+        }
+
+        bp.nhap();
+        repoBP.add(bp);
+        cout << "-> Them moi buu pham thanh cong!\n";
     }
 
     void xemDanhSach() const {
-        auto list = repo.getAll();
-        if (list.empty()) { cout << "\nDanh sach loai dich vu trong!\n"; return; }
-        cout << "\n======================== DANH SACH LOAI DICH VU ========================\n";
+        auto list = repoBP.getAll();
+        if (list.empty()) { cout << "\nDanh sach buu pham trong!\n"; return; }
+        cout << "\n============================== DANH SACH BUU PHAM ==============================\n";
         inTieuDeBang();
         for (const auto& item : list) item.xuat();
-        cout << "Tong so loai dich vu: " << list.size() << endl;
+        cout << "Tong so buu pham: " << list.size() << endl;
     }
 
     void timKiem() const {
-        string id; cout << "Nhap ma loai dich vu can tim: "; getline(cin, id);
-        LoaiDichVu* result = repo.findById(id);
+        string id; cout << "Nhap ma buu pham can tim: "; getline(cin, id);
+        BuuPham* result = repoBP.findById(id);
         if (result != nullptr) {
             cout << "\nDa tim thay thong tin:\n"; inTieuDeBang(); result->xuat();
         }
         else {
-            cout << "Khong tim thay loai dich vu co ma: " << id << "\n";
+            cout << "Khong tim thay buu pham co ma: " << id << "\n";
         }
     }
 
     void sapXep() {
-        auto list = repo.getAll();
+        auto list = repoBP.getAll();
         if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
 
-        sort(list.begin(), list.end(), [](const LoaiDichVu& a, const LoaiDichVu& b) {
-            return a.getTenDichVu() < b.getTenDichVu();
+        sort(list.begin(), list.end(), [](const BuuPham& a, const BuuPham& b) {
+            return a.getSoLuong() < b.getSoLuong();
             });
 
-        cout << "-> Da sap xep danh sach theo Ten Dich Vu (A-Z)!\n";
-        cout << "\n======================== KET QUA SAP XEP ========================\n";
+        cout << "-> Da sap xep danh sach theo So Luong (Tang dan)!\n";
+        cout << "\n============================= KET QUA SAP XEP =============================\n";
         inTieuDeBang();
         for (const auto& item : list) item.xuat();
     }
 
     void capNhat() {
-        string id; cout << "Nhap ma loai dich vu can cap nhat: "; getline(cin, id);
-        LoaiDichVu* old = repo.findById(id);
-        if (old == nullptr) { cout << "Khong tim thay ma loai dich vu nay!\n"; return; }
+        string id; cout << "Nhap ma buu pham can cap nhat: "; getline(cin, id);
+        BuuPham* old = repoBP.findById(id);
+        if (old == nullptr) { cout << "Khong tim thay ma buu pham nay!\n"; return; }
 
         cout << "\nThong tin hien tai:\n"; inTieuDeBang(); old->xuat();
         cout << "\n(Luu y: An Enter de giu nguyen gia tri cu)\n";
 
-        LoaiDichVu newData = *old;
+        BuuPham newData = *old;
         string temp;
 
-        cout << "Nhap ten moi [" << old->getTenDichVu() << "]: "; getline(cin, temp);
-        if (!temp.empty()) newData.setTenDichVu(temp);
+        cout << "Nhap ten moi [" << old->getTenBuuPham() << "]: "; getline(cin, temp);
+        if (!temp.empty()) newData.setTenBuuPham(temp);
 
-        cout << "Nhap phu phi moi [" << old->getPhuPhi() << "]: "; getline(cin, temp);
-        if (!temp.empty()) newData.setPhuPhi(stod(temp));
+        cout << "Nhap trong luong moi [" << old->getTrongLuong() << "]: "; getline(cin, temp);
+        if (!temp.empty()) newData.setTrongLuong(stod(temp));
 
-        cout << "Nhap mo ta moi [" << old->getMoTa() << "]: "; getline(cin, temp);
-        if (!temp.empty()) newData.setMoTa(temp);
+        cout << "Nhap so luong moi [" << old->getSoLuong() << "]: "; getline(cin, temp);
+        if (!temp.empty()) newData.setSoLuong(stoi(temp));
 
-        if (repo.update(id, newData)) cout << "-> Cap nhat thanh cong!\n";
+        cout << "Nhap ma hoa don moi [" << old->getMaHoaDon() << "]: "; getline(cin, temp);
+        if (!temp.empty()) {
+            if (repoHD.findById(temp) == nullptr) {
+                cout << "Loi: Hoa don khong ton tai! Giu nguyen ma cu.\n";
+            }
+            else {
+                bool daDung = false;
+                for (const auto& item : repoBP.getAll()) {
+                    if (item.getMaID() != id && item.getMaHoaDon() == temp) {
+                        daDung = true;
+                        break;
+                    }
+                }
+                if (daDung) {
+                    cout << "Loi: Ma hoa don nay da duoc su dung cho buu pham khac! Giu nguyen ma cu.\n";
+                }
+                else {
+                    newData.setMaHoaDon(temp);
+                }
+            }
+        }
+
+        if (repoBP.update(id, newData)) cout << "-> Cap nhat thanh cong!\n";
         else cout << "Loi khi cap nhat!\n";
     }
 
     void xoa() {
-        string id; cout << "Nhap ma loai dich vu can xoa: "; getline(cin, id);
-        LoaiDichVu* target = repo.findById(id);
-        if (target == nullptr) { cout << "Khong tim thay ma loai dich vu nay!\n"; return; }
+        string id; cout << "Nhap ma buu pham can xoa: "; getline(cin, id);
+        BuuPham* target = repoBP.findById(id);
+        if (target == nullptr) { cout << "Khong tim thay ma buu pham nay!\n"; return; }
 
         cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
 
-        // Kiểm tra ràng buộc tham chiếu trước khi xóa
-        if (kiemTraRangBuocHD != nullptr && kiemTraRangBuocHD(id)) {
+        if (kiemTraRangBuocPhieuGui != nullptr && kiemTraRangBuocPhieuGui(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
-            cout << "-> Loai dich vu nay dang duoc su dung trong hoa don.\n";
+            cout << "-> Buu pham nay dang duoc tham chieu trong Phieu gui.\n";
             return;
         }
 
@@ -219,7 +293,7 @@ public:
         char confirm; cin >> confirm; cin.ignore(10000, '\n');
 
         if (confirm == 'y' || confirm == 'Y') {
-            if (repo.removeById(id)) cout << "-> Xoa thanh cong!\n";
+            if (repoBP.removeById(id)) cout << "-> Xoa thanh cong!\n";
         }
         else {
             cout << "Huy thao tac xoa.\n";
@@ -230,15 +304,15 @@ public:
         int choice = -1;
         do {
             xoaManHinh();
-            cout << "========== QUAN LY LOAI DICH VU ==========\n";
-            cout << "1. Them loai dich vu moi\n";
+            cout << "========== QUAN LY BUU PHAM ==========\n";
+            cout << "1. Them buu pham moi\n";
             cout << "2. Xem danh sach\n";
             cout << "3. Tim kiem theo ma\n";
-            cout << "4. Sap xep theo Ten (A-Z)\n";
+            cout << "4. Sap xep theo So Luong\n";
             cout << "5. Cap nhat thong tin\n";
-            cout << "6. Xoa loai dich vu\n";
+            cout << "6. Xoa buu pham\n";
             cout << "0. Quay lai menu chinh\n";
-            cout << "=========================================\nLua chon cua ban: ";
+            cout << "=======================================\nLua chon cua ban: ";
             if (!(cin >> choice)) { cin.clear(); choice = -1; }
             cin.ignore(10000, '\n');
             if (choice == 0) break;
@@ -256,6 +330,6 @@ public:
             tamDung();
         } while (choice != 0);
     }
-};
+}; 
 
 #endif
