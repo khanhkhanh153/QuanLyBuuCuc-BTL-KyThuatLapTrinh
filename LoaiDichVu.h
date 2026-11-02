@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <functional>
+#include <regex>
 #include "Entity.h"
 #include "Repository.h"
 
@@ -92,8 +93,8 @@ public:
 class LoaiDichVuMenu {
 private:
     Repository<LoaiDichVu>& repo;
-    
-    // Callback kiểm tra ràng buộc chéo 
+
+    // Callback kiểm tra ràng buộc chéo
     function<bool(string)> kiemTraRangBuocHD;
 
     void xoaManHinh() const { system("cls"); }
@@ -104,16 +105,33 @@ private:
         cout << string(73, '-') << endl;
     }
 
+    // Hàm kiểm tra định dạng mã loại dịch vụ: Bắt buộc "DV" theo sau đúng 2 chữ số (VD: DV01, DV14)
+    bool isValidMaLoaiDichVu(const string& ma) const {
+        regex pattern("^DV[0-9]{2}$");
+        return regex_match(ma, pattern);
+    }
+
 public:
-    LoaiDichVuMenu(Repository<LoaiDichVu>& r, function<bool(string)> kiemTra = nullptr) 
-        : repo(r), kiemTraRangBuocHD(kiemTra) {}
+    LoaiDichVuMenu(Repository<LoaiDichVu>& r, function<bool(string)> kiemTra = nullptr)
+        : repo(r), kiemTraRangBuocHD(kiemTra) {
+    }
 
     void themMoi() {
         cout << "\n=== THEM MOI LOAI DICH VU ===\n";
         LoaiDichVu dv; string id;
         while (true) {
             try {
-                cout << "Nhap ma loai dich vu (VD: DV01): "; getline(cin, id);
+                cout << "Nhap ma loai dich vu (VD: DV01, DV14): "; getline(cin, id);
+                
+                if (id.empty()) {
+                    throw invalid_argument("Ma loai dich vu khong duoc de trong!");
+                }
+
+                // Kiểm tra định dạng bắt buộc DV theo sau 2 chữ số
+                if (!isValidMaLoaiDichVu(id)) {
+                    throw invalid_argument("Sai dinh dang! Ma loai dich vu phai co dang DV theo sau 2 chu so (VD: DV01, DV14).");
+                }
+
                 dv.setMaID(id);
                 if (repo.findById(id) != nullptr) throw invalid_argument("Ma loai dich vu da ton tai!");
                 break;
@@ -189,7 +207,7 @@ public:
         if (target == nullptr) { cout << "Khong tim thay ma loai dich vu nay!\n"; return; }
 
         cout << "\nThong tin chuan bi xoa:\n"; inTieuDeBang(); target->xuat();
-        
+
         // Kiểm tra ràng buộc tham chiếu trước khi xóa
         if (kiemTraRangBuocHD != nullptr && kiemTraRangBuocHD(id)) {
             cout << "\n[LOI RANG BUOC DU LIEU] KHONG THE XOA!\n";
