@@ -1,4 +1,4 @@
-//Nguyễn Mạnh Tú
+// Nguyễn Mạnh Tú
 
 #ifndef BUUCUC_H
 #define BUUCUC_H
@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdlib>
+#include <cctype>
 #include <functional> 
 #include "Entity.h"
 #include "Repository.h"
@@ -27,6 +28,23 @@ private:
 
 public:
     BuuCuc() : Entity(), tenBuuCuc(""), diaChi(""), soDienThoai("") {}
+
+    // Kiem tra dinh dang ma ID: BC + chu so khong am (VD: BC01, BC10)
+    void setMaID(const string& id)
+    {
+        if (id.length() <= 2 || id.substr(0, 2) != "BC")
+        {
+            throw invalid_argument("Ma buu cuc phai bat dau bang 'BC' va theo sau la cac chu so (VD: BC01)!");
+        }
+        for (size_t i = 2; i < id.length(); ++i)
+        {
+            if (!isdigit(static_cast<unsigned char>(id[i])))
+            {
+                throw invalid_argument("Phan sau 'BC' phai la cac chu so khong am!");
+            }
+        }
+        maID = id;
+    }
 
     string getTenBuuCuc() const
     {
@@ -69,7 +87,7 @@ public:
         }
         for (char c : sdt)
         {
-            if (!isdigit(c))
+            if (!isdigit(static_cast<unsigned char>(c)))
             {
                 throw invalid_argument("So dien thoai khong duoc chua chu cai hoac ky tu dac biet!");
             }
@@ -161,8 +179,6 @@ class BuuCucMenu
 {
 private:
     Repository<BuuCuc>& repo;
-
-    // Khai bao con tro ham (callback) kiem tra rang buoc chung
     function<bool(string)> kiemTraRangBuoc;
 
     void xoaManHinh() const
@@ -298,21 +314,32 @@ public:
         getline(cin, temp);
         if (!temp.empty())
         {
-            newData.setTenBuuCuc(temp);
+            try { newData.setTenBuuCuc(temp); }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " (Giu nguyen gia tri cu)\n"; }
         }
 
         cout << "Nhap dia chi moi [" << old->getDiaChi() << "]: ";
         getline(cin, temp);
         if (!temp.empty())
         {
-            newData.setDiaChi(temp);
+            try { newData.setDiaChi(temp); }
+            catch (const exception& e) { cout << "Loi: " << e.what() << " (Giu nguyen gia tri cu)\n"; }
         }
 
-        cout << "Nhap so dien thoai moi [" << old->getSoDienThoai() << "]: ";
-        getline(cin, temp);
-        if (!temp.empty())
+        while (true)
         {
-            newData.setSoDienThoai(temp);
+            try
+            {
+                cout << "Nhap so dien thoai moi [" << old->getSoDienThoai() << "]: ";
+                getline(cin, temp);
+                if (temp.empty()) break;
+                newData.setSoDienThoai(temp);
+                break;
+            }
+            catch (const exception& e)
+            {
+                cout << "Loi: " << e.what() << " Vui long nhap lai.\n";
+            }
         }
 
         if (repo.update(id, newData))
@@ -341,7 +368,6 @@ public:
         inTieuDeBang();
         target->xuat();
 
-        // KIEM TRA RANG BUOC TRUOC KHI XOA
         if (kiemTraRangBuoc != nullptr)
         {
             bool dangDuocSuDung = kiemTraRangBuoc(id);
@@ -350,7 +376,7 @@ public:
                 cout << "\nKHONG THE XOA!\n";
                 cout << "-> Buu cuc nay hien dang duoc su dung trong Phieu Gui hoac Buu Pham.\n";
                 cout << "-> Vui long kiem tra lai cac lien ket du lieu truoc khi xoa.\n";
-                return; // Chan thao tac xoa
+                return;
             }
         }
 
@@ -401,26 +427,13 @@ public:
             xoaManHinh();
             switch (choice)
             {
-            case 1:
-                themMoi();
-                break;
-            case 2:
-                xemDanhSach();
-                break;
-            case 3:
-                timKiem();
-                break;
-            case 4:
-                sapXep();
-                break;
-            case 5:
-                capNhat();
-                break;
-            case 6:
-                xoa();
-                break;
-            default:
-                cout << "Lua chon khong hop le!\n";
+            case 1: themMoi(); break;
+            case 2: xemDanhSach(); break;
+            case 3: timKiem(); break;
+            case 4: sapXep(); break;
+            case 5: capNhat(); break;
+            case 6: xoa(); break;
+            default: cout << "Lua chon khong hop le!\n";
             }
             tamDung();
         } while (choice != 0);
