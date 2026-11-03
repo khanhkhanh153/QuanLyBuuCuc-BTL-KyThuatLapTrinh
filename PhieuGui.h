@@ -1,4 +1,4 @@
-//Nguyễn Mạnh Tú
+// Nguyễn Mạnh Tú
 
 #ifndef PHIEUGUI_H
 #define PHIEUGUI_H
@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstdlib>
+#include <cctype>
 #include "Entity.h"
 #include "Repository.h"
 #include "BuuCuc.h"
@@ -20,7 +21,8 @@
 using namespace std;
 
 // --- LOP THUC THE ---
-class PhieuGui : public Entity {
+class PhieuGui : public Entity
+{
 private:
     string maBuuCucGui;
     string maKhachHang;
@@ -29,41 +31,71 @@ private:
 public:
     PhieuGui() : Entity(), maBuuCucGui(""), maKhachHang(""), maBuuPham("") {}
 
-    string getMaBuuCucGui() const 
-    { 
-        return maBuuCucGui; 
+    // Kiem tra dinh dang ma ID: PG + chu so khong am (VD: PG01, PG10)
+    void setMaID(const string& id)
+    {
+        if (id.length() <= 2 || id.substr(0, 2) != "PG")
+        {
+            throw invalid_argument("Ma phieu gui phai bat dau bang 'PG' va theo sau la cac chu so (VD: PG01)!");
+        }
+        for (size_t i = 2; i < id.length(); ++i)
+        {
+            if (!isdigit(static_cast<unsigned char>(id[i])))
+            {
+                throw invalid_argument("Phan sau 'PG' phai la cac chu so khong am!");
+            }
+        }
+        maID = id;
     }
-    void setMaBuuCucGui(const string& maBC) {
-        if (maBC.empty()) throw invalid_argument("Ma buu cuc khong duoc de trong!");
+
+    string getMaBuuCucGui() const
+    {
+        return maBuuCucGui;
+    }
+
+    void setMaBuuCucGui(const string& maBC)
+    {
+        if (maBC.empty())
+        {
+            throw invalid_argument("Ma buu cuc khong duoc de trong!");
+        }
         maBuuCucGui = maBC;
     }
 
-    string getMaKhachHang() const 
-    { 
+    string getMaKhachHang() const
+    {
         return maKhachHang;
     }
-    void setMaKhachHang(const string& maKH) 
+
+    void setMaKhachHang(const string& maKH)
     {
-        if (maKH.empty()) throw invalid_argument("Ma khach hang khong duoc de trong!");
+        if (maKH.empty())
+        {
+            throw invalid_argument("Ma khach hang khong duoc de trong!");
+        }
         maKhachHang = maKH;
     }
 
-    string getMaBuuPham() const 
-    { 
-        return maBuuPham; 
-    }
-    void setMaBuuPham(const string& maBP) 
+    string getMaBuuPham() const
     {
-        if (maBP.empty()) throw invalid_argument("Ma buu pham khong duoc de trong!");
+        return maBuuPham;
+    }
+
+    void setMaBuuPham(const string& maBP)
+    {
+        if (maBP.empty())
+        {
+            throw invalid_argument("Ma buu pham khong duoc de trong!");
+        }
         maBuuPham = maBP;
     }
 
-    void nhap() override 
+    void nhap() override
     {
         // Cac thuoc tinh deu la khoa ngoai, viec nhap/kiem tra do Menu xu ly
     }
 
-    void xuat() const override 
+    void xuat() const override
     {
         cout << left << setw(10) << maID
             << "| " << setw(15) << maBuuCucGui
@@ -71,20 +103,23 @@ public:
             << "| " << setw(15) << maBuuPham << endl;
     }
 
-    string toFileRecord() const override 
+    string toFileRecord() const override
     {
         stringstream ss;
         ss << maID << "|" << maBuuCucGui << "|" << maKhachHang << "|" << maBuuPham;
         return ss.str();
     }
 
-    void fromFileRecord(const string& record) override 
+    void fromFileRecord(const string& record) override
     {
         stringstream ss(record);
         string item;
         vector<string> tokens;
-        while (getline(ss, item, '|')) tokens.push_back(item);
-        if (tokens.size() == 4) 
+        while (getline(ss, item, '|'))
+        {
+            tokens.push_back(item);
+        }
+        if (tokens.size() == 4)
         {
             maID = tokens[0];
             maBuuCucGui = tokens[1];
@@ -95,7 +130,7 @@ public:
 };
 
 // --- LOP GIAO DIEN (MENU) ---
-class PhieuGuiMenu 
+class PhieuGuiMenu
 {
 private:
     Repository<PhieuGui>& repoPG;
@@ -103,174 +138,345 @@ private:
     Repository<KhachHangGui>& repoKH;
     Repository<BuuPham>& repoBP;
 
-    void xoaManHinh() const { system("cls"); }
-    void tamDung() const { 
-        cout << "\nNhan Enter de tiep tuc..."; 
-        cin.get(); 
+    void xoaManHinh() const
+    {
+        system("cls");
     }
-    void inTieuDeBang() const {
+
+    void tamDung() const
+    {
+        cout << "\nNhan Enter de tiep tuc...";
+        cin.get();
+    }
+
+    void inTieuDeBang() const
+    {
         cout << left << setw(10) << "Ma Phieu" << "| " << setw(15) << "Ma Buu Cuc"
             << "| " << setw(15) << "Ma Khach Hang" << "| " << setw(15) << "Ma Buu Pham" << endl;
-        cout << string(60, '-') << endl;
+        cout << string(59, '-') << endl;
     }
 
 public:
     PhieuGuiMenu(Repository<PhieuGui>& pg, Repository<BuuCuc>& bc, Repository<KhachHangGui>& kh, Repository<BuuPham>& bp)
-        : repoPG(pg), repoBC(bc), repoKH(kh), repoBP(bp) {
+        : repoPG(pg), repoBC(bc), repoKH(kh), repoBP(bp)
+    {
     }
 
-    void themMoi() {
+    void themMoi()
+    {
         cout << "\n=== THEM MOI PHIEU GUI ===\n";
-        PhieuGui pg; string temp;
+        PhieuGui pg;
+        string temp;
 
-        while (true) 
+        while (true)
         {
-            try {
-                cout << "Nhap ma phieu gui (VD: PG01): "; getline(cin, temp);
+            try
+            {
+                cout << "Nhap ma phieu gui (VD: PG01): ";
+                getline(cin, temp);
                 pg.setMaID(temp);
-                if (repoPG.findById(temp) != nullptr) throw invalid_argument("Ma phieu gui da ton tai!");
+                if (repoPG.findById(temp) != nullptr)
+                {
+                    throw invalid_argument("Ma phieu gui da ton tai!");
+                }
                 break;
             }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+            catch (const exception& e)
+            {
+                cout << "Loi: " << e.what() << "\n";
+            }
         }
 
-        while (true) 
+        while (true)
         {
-            try {
-                cout << "Nhap ma Buu cuc gui (VD: BC01): "; getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoBC.findById(temp) == nullptr) throw invalid_argument("Buu cuc chua ton tai!");
+            try
+            {
+                cout << "Nhap ma Buu cuc gui (VD: BC01): ";
+                getline(cin, temp);
+                if (temp.empty())
+                {
+                    throw invalid_argument("Khong duoc de trong!");
+                }
+                if (repoBC.findById(temp) == nullptr)
+                {
+                    throw invalid_argument("Buu cuc chua ton tai!");
+                }
                 pg.setMaBuuCucGui(temp);
                 break;
             }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+            catch (const exception& e)
+            {
+                cout << "Loi: " << e.what() << "\n";
+            }
         }
 
-        while (true) 
+        while (true)
         {
-            try {
-                cout << "Nhap ma Khach hang gui (VD: KH01): "; getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoKH.findById(temp) == nullptr) throw invalid_argument("Khach hang chua ton tai!");
+            try
+            {
+                cout << "Nhap ma Khach hang gui (VD: KH01): ";
+                getline(cin, temp);
+                if (temp.empty())
+                {
+                    throw invalid_argument("Khong duoc de trong!");
+                }
+                if (repoKH.findById(temp) == nullptr)
+                {
+                    throw invalid_argument("Khach hang chua ton tai!");
+                }
                 pg.setMaKhachHang(temp);
                 break;
             }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+            catch (const exception& e)
+            {
+                cout << "Loi: " << e.what() << "\n";
+            }
         }
 
-        while (true) 
+        while (true)
         {
-            try {
-                cout << "Nhap ma Buu pham (VD: BP01): "; getline(cin, temp);
-                if (temp.empty()) throw invalid_argument("Khong duoc de trong!");
-                if (repoBP.findById(temp) == nullptr) throw invalid_argument("Buu pham chua ton tai!");
+            try
+            {
+                cout << "Nhap ma Buu pham (VD: BP01): ";
+                getline(cin, temp);
+                if (temp.empty())
+                {
+                    throw invalid_argument("Khong duoc de trong!");
+                }
+                if (repoBP.findById(temp) == nullptr)
+                {
+                    throw invalid_argument("Buu pham chua ton tai!");
+                }
+
+                bool daGui = false;
+                auto listPG = repoPG.getAll();
+                for (auto const& item : listPG)
+                {
+                    if (item.getMaBuuPham() == temp)
+                    {
+                        daGui = true;
+                        break;
+                    }
+                }
+                if (daGui)
+                {
+                    throw invalid_argument("Buu pham da duoc ghi trong phieu gui khac!");
+                }
                 pg.setMaBuuPham(temp);
                 break;
             }
-            catch (const exception& e) { cout << "Loi: " << e.what() << "\n"; }
+            catch (const exception& e)
+            {
+                cout << "Loi: " << e.what() << "\n";
+            }
         }
 
         repoPG.add(pg);
         cout << "-> Them moi thanh cong!\n";
     }
 
-    void xemDanhSach() const 
+    void xemDanhSach() const
     {
         auto list = repoPG.getAll();
-        if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
+        if (list.empty())
+        {
+            cout << "\nDanh sach trong!\n";
+            return;
+        }
         cout << "\n=================== DANH SACH PHIEU GUI ===================\n";
         inTieuDeBang();
-        for (const auto& item : list) item.xuat();
+        for (const auto& item : list)
+        {
+            item.xuat();
+        }
         cout << "Tong so phieu gui: " << list.size() << endl;
     }
 
-    void timKiem() const 
+    void timKiem() const
     {
-        string id; cout << "Nhap ma phieu gui can tim: "; getline(cin, id);
+        string id;
+        cout << "Nhap ma phieu gui can tim: ";
+        getline(cin, id);
         PhieuGui* result = repoPG.findById(id);
-        if (result != nullptr) {
-            cout << "\nDa tim thay thong tin:\n"; inTieuDeBang(); result->xuat();
+        if (result != nullptr)
+        {
+            cout << "\nDa tim thay thong tin:\n";
+            inTieuDeBang();
+            result->xuat();
         }
-        else cout << "Khong tim thay phieu gui ma: " << id << "\n";
+        else
+        {
+            cout << "Khong tim thay phieu gui ma: " << id << "\n";
+        }
     }
 
-    void sapXep() 
+    void sapXep()
     {
         auto list = repoPG.getAll();
-        if (list.empty()) { cout << "\nDanh sach trong!\n"; return; }
+        if (list.empty())
+        {
+            cout << "\nDanh sach trong!\n";
+            return;
+        }
 
-        sort(list.begin(), list.end(), [](const PhieuGui& a, const PhieuGui& b) {
-            return a.getMaKhachHang() < b.getMaKhachHang();
+        sort(list.begin(), list.end(), [](const PhieuGui& a, const PhieuGui& b)
+            {
+                return a.getMaKhachHang() < b.getMaKhachHang();
             });
 
         cout << "-> Da sap xep danh sach hien thi theo Ma Khach Hang (A-Z)!\n";
         cout << "\n=================== KET QUA SAP XEP ===================\n";
         inTieuDeBang();
-        for (const auto& item : list) item.xuat();
+        for (const auto& item : list)
+        {
+            item.xuat();
+        }
     }
 
-    void capNhat() 
+    void capNhat()
     {
-        string id; cout << "Nhap ma phieu can cap nhat: "; getline(cin, id);
+        string id;
+        cout << "Nhap ma phieu can cap nhat: ";
+        getline(cin, id);
         PhieuGui* old = repoPG.findById(id);
-        if (old == nullptr) { cout << "Khong tim thay ma nay!\n"; return; }
+        if (old == nullptr)
+        {
+            cout << "Khong tim thay ma nay!\n";
+            return;
+        }
 
-        cout << "\nThong tin hien tai:\n"; inTieuDeBang(); old->xuat();
+        cout << "\nThong tin hien tai:\n";
+        inTieuDeBang();
+        old->xuat();
         cout << "\n(Luu y: De trong neu muon giu nguyen gia tri cu)\n";
 
-        PhieuGui newData = *old; string temp;
+        PhieuGui newData = *old;
+        string temp;
 
-        cout << "Nhap ma Buu cuc moi [" << old->getMaBuuCucGui() << "]: "; getline(cin, temp);
-        if (!temp.empty()) {
-            if (repoBC.findById(temp) == nullptr) cout << "Loi: Buu cuc chua ton tai! Giu nguyen ma cu.\n";
-            else newData.setMaBuuCucGui(temp);
+        cout << "Nhap ma Buu cuc moi [" << old->getMaBuuCucGui() << "]: ";
+        getline(cin, temp);
+        if (!temp.empty())
+        {
+            if (repoBC.findById(temp) == nullptr)
+            {
+                cout << "Loi: Buu cuc chua ton tai! Giu nguyen ma cu.\n";
+            }
+            else
+            {
+                newData.setMaBuuCucGui(temp);
+            }
         }
 
-        cout << "Nhap ma Khach hang moi [" << old->getMaKhachHang() << "]: "; getline(cin, temp);
-        if (!temp.empty()) {
-            if (repoKH.findById(temp) == nullptr) cout << "Loi: Khach hang chua ton tai! Giu nguyen ma cu.\n";
-            else newData.setMaKhachHang(temp);
+        cout << "Nhap ma Khach hang moi [" << old->getMaKhachHang() << "]: ";
+        getline(cin, temp);
+        if (!temp.empty())
+        {
+            if (repoKH.findById(temp) == nullptr)
+            {
+                cout << "Loi: Khach hang chua ton tai! Giu nguyen ma cu.\n";
+            }
+            else
+            {
+                newData.setMaKhachHang(temp);
+            }
         }
 
-        cout << "Nhap ma Buu pham moi [" << old->getMaBuuPham() << "]: "; getline(cin, temp);
-        if (!temp.empty()) {
-            if (repoBP.findById(temp) == nullptr) cout << "Loi: Buu pham chua ton tai! Giu nguyen ma cu.\n";
-            else newData.setMaBuuPham(temp);
+        cout << "Nhap ma Buu pham moi [" << old->getMaBuuPham() << "]: ";
+        getline(cin, temp);
+        if (!temp.empty())
+        {
+            bool daGui = false;
+            auto listPG = repoPG.getAll();
+            for (auto const& item : listPG)
+            {
+                if (item.getMaBuuPham() == temp && item.getMaBuuPham() != old->getMaBuuPham())
+                {
+                    daGui = true;
+                    break;
+                }
+            }
+
+            if (daGui)
+            {
+                cout << "Loi: Buu pham da duoc ghi trong phieu gui khac! Giu nguyen ma cu.\n";
+            }
+            else if (repoBP.findById(temp) == nullptr)
+            {
+                cout << "Loi: Buu pham chua ton tai! Giu nguyen ma cu.\n";
+            }
+            else
+            {
+                newData.setMaBuuPham(temp);
+            }
         }
 
-        if (repoPG.update(id, newData)) cout << "-> Cap nhat thanh cong!\n";
-        else cout << "Loi khi cap nhat!\n";
+        if (repoPG.update(id, newData))
+        {
+            cout << "-> Cap nhat thanh cong!\n";
+        }
+        else
+        {
+            cout << "Loi khi cap nhat!\n";
+        }
     }
 
-    void xoa() 
+    void xoa()
     {
-        string id; cout << "Nhap ma phieu gui can xoa: "; getline(cin, id);
-        if (repoPG.findById(id) == nullptr) { cout << "Khong tim thay ma nay!\n"; return; }
+        string id;
+        cout << "Nhap ma phieu gui can xoa: ";
+        getline(cin, id);
+        if (repoPG.findById(id) == nullptr)
+        {
+            cout << "Khong tim thay ma nay!\n";
+            return;
+        }
 
         cout << "Ban co chac chan muon xoa khong? (y/n): ";
-        char confirm; cin >> confirm; cin.ignore(10000, '\n');
-        if (confirm == 'y' || confirm == 'Y') {
-            if (repoPG.removeById(id)) cout << "-> Xoa thanh cong!\n";
+        char confirm;
+        cin >> confirm;
+        cin.ignore(10000, '\n');
+        if (confirm == 'y' || confirm == 'Y')
+        {
+            if (repoPG.removeById(id))
+            {
+                cout << "-> Xoa thanh cong!\n";
+            }
         }
-        else cout << "Huy thao tac xoa.\n";
+        else
+        {
+            cout << "Huy thao tac xoa.\n";
+        }
     }
 
-    void menu() {
+    void menu()
+    {
         int choice = -1;
-        do {
+        do
+        {
             xoaManHinh();
             cout << "========== QUAN LY PHIEU GUI ==========\n";
-            cout << "1. Them phieu gui moi\n2. Xem danh sach\n3. Tim kiem\n4. Sap xep theo Ma KH\n5. Cap nhat\n6. Xoa\n0. Quay lai menu chinh\n";
+            cout << "1. Them phieu gui moi\n";
+            cout << "2. Xem danh sach\n";
+            cout << "3. Tim kiem\n";
+            cout << "4. Sap xep theo Ma KH\n";
+            cout << "5. Cap nhat\n";
+            cout << "6. Xoa\n";
+            cout << "0. Quay lai menu chinh\n";
             cout << "=======================================\nChon: ";
-            if (!(cin >> choice)) {
-                cin.clear(); 
-                choice = -1; 
+            if (!(cin >> choice))
+            {
+                cin.clear();
+                choice = -1;
             }
             cin.ignore(10000, '\n');
-            if (choice == 0) break;
+            if (choice == 0)
+            {
+                break;
+            }
 
             xoaManHinh();
-            switch (choice) {
+            switch (choice)
+            {
             case 1: themMoi(); break;
             case 2: xemDanhSach(); break;
             case 3: timKiem(); break;
